@@ -1,6 +1,6 @@
 import { StatsDisplay } from "@/components/StatsDisplay";
 import { ProgressBar } from "@/components/ProgressBar";
-import { LessonCard } from "@/components/LessonCard";
+import { LessonTrail } from "@/components/LessonTrail";
 import { BottomNav } from "@/components/BottomNav";
 
 const Dashboard = () => {
@@ -8,54 +8,57 @@ const Dashboard = () => {
   const userStats = { streak: 7, xp: 1250, coins: 340 };
   const overallProgress = 35;
 
-  const recentLessons = [
+  // Lesson progression trail: first lesson unlocked, rest locked until previous completed
+  const lessonsTrail = [
     {
       id: "1",
-      title: "Understanding P/E Ratio",
-      description: "Learn how to evaluate stock valuation using the Price-to-Earnings ratio",
+      title: "Introduction to Financial Statements",
+      description: "Learn the three core financial statements every investor must understand",
       isLocked: false,
       isCompleted: true,
       xpReward: 50,
-      category: "ratios",
+      category: "basics",
+      order: 1,
     },
     {
       id: "2",
-      title: "Reading Balance Sheets",
-      description: "Master the fundamentals of analyzing a company's financial position",
-      isLocked: false,
-      isCompleted: false,
-      xpReward: 75,
-      category: "statements",
-    },
-  ];
-
-  const upcomingLessons = [
-    {
-      id: "3",
-      title: "ROE & ROA Analysis",
-      description: "Discover how to measure company profitability and efficiency",
+      title: "Understanding P/E Ratio",
+      description: "Master how to evaluate stock valuation using the Price-to-Earnings ratio",
       isLocked: false,
       isCompleted: false,
       xpReward: 60,
       category: "ratios",
+      order: 2,
+    },
+    {
+      id: "3",
+      title: "Reading Balance Sheets",
+      description: "Analyze a company's assets, liabilities, and shareholder equity",
+      isLocked: true,
+      isCompleted: false,
+      xpReward: 75,
+      category: "statements",
+      order: 3,
     },
     {
       id: "4",
-      title: "Cash Flow Statements",
-      description: "Learn to track a company's cash movements and financial health",
-      isLocked: false,
+      title: "Cash Flow Analysis",
+      description: "Track how cash moves in and out of a business over time",
+      isLocked: true,
       isCompleted: false,
       xpReward: 80,
       category: "statements",
+      order: 4,
     },
     {
       id: "5",
-      title: "Advanced Valuation",
+      title: "Advanced Valuation Techniques",
       description: "Dive deep into DCF models and intrinsic value calculations",
       isLocked: true,
       isCompleted: false,
       xpReward: 100,
-      category: "basics",
+      category: "ratios",
+      order: 5,
     },
   ];
 
@@ -71,29 +74,16 @@ const Dashboard = () => {
           <ProgressBar progress={overallProgress} />
         </div>
 
-        {/* Recent Lessons */}
+        {/* Learning Trail */}
         <section className="space-y-4 animate-slide-up" style={{ animationDelay: "0.1s" }}>
           <div className="flex justify-between items-center">
-            <h2 className="font-heading font-bold text-xl text-foreground">Continue Learning</h2>
-            <span className="text-sm text-muted-foreground">{recentLessons.length} active</span>
+            <h2 className="font-heading font-bold text-2xl text-foreground">Your Learning Path</h2>
+            <span className="text-sm text-muted-foreground">
+              {lessonsTrail.filter(l => l.isCompleted).length} / {lessonsTrail.length} completed
+            </span>
           </div>
-          <div className="space-y-3">
-            {recentLessons.map((lesson) => (
-              <LessonCard key={lesson.id} {...lesson} />
-            ))}
-          </div>
-        </section>
-
-        {/* Upcoming Lessons */}
-        <section className="space-y-4 animate-slide-up" style={{ animationDelay: "0.2s" }}>
-          <div className="flex justify-between items-center">
-            <h2 className="font-heading font-bold text-xl text-foreground">Upcoming Lessons</h2>
-            <span className="text-sm text-muted-foreground">{upcomingLessons.length} total</span>
-          </div>
-          <div className="grid gap-3">
-            {upcomingLessons.map((lesson) => (
-              <LessonCard key={lesson.id} {...lesson} />
-            ))}
+          <div className="bg-card/50 rounded-2xl p-6 shadow-card">
+            <LessonTrail lessons={lessonsTrail} />
           </div>
         </section>
       </div>
