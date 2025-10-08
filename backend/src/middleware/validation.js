@@ -8,40 +8,70 @@ import validator from 'validator';
  */
 export const validateRegistration = (req, res, next) => {
   const { username, email, password } = req.body;
-  const errors = [];
+  const errors = {};
 
   // Username validation
   if (!username || typeof username !== 'string') {
-    errors.push('Username is required');
-  } else if (username.length < 3 || username.length > 50) {
-    errors.push('Username must be between 3 and 50 characters');
+    errors.username = 'Username is required';
+  } else if (username.trim().length < 3) {
+    errors.username = 'Username must be at least 3 characters long';
+  } else if (username.length > 50) {
+    errors.username = 'Username cannot be longer than 50 characters';
   } else if (!/^[a-zA-Z0-9_]+$/.test(username)) {
-    errors.push('Username can only contain letters, numbers, and underscores');
+    errors.username = 'Username can only contain letters, numbers, and underscores';
+  } else if (username.startsWith('_') || username.endsWith('_')) {
+    errors.username = 'Username cannot start or end with an underscore';
   }
 
   // Email validation
   if (!email || typeof email !== 'string') {
-    errors.push('Email is required');
-  } else if (!validator.isEmail(email)) {
-    errors.push('Please provide a valid email address');
+    errors.email = 'Email address is required';
+  } else if (!validator.isEmail(email.trim())) {
+    errors.email = 'Please enter a valid email address (e.g., user@example.com)';
+  } else if (email.length > 255) {
+    errors.email = 'Email address is too long';
   }
 
   // Password validation
   if (!password || typeof password !== 'string') {
-    errors.push('Password is required');
+    errors.password = 'Password is required';
   } else if (password.length < 8) {
-    errors.push('Password must be at least 8 characters long');
-  } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)) {
-    errors.push('Password must contain at least one lowercase letter, one uppercase letter, and one number');
+    errors.password = 'Password must be at least 8 characters long';
+  } else if (password.length > 128) {
+    errors.password = 'Password is too long (maximum 128 characters)';
+  } else {
+    const passwordIssues = [];
+    
+    if (!/(?=.*[a-z])/.test(password)) {
+      passwordIssues.push('one lowercase letter');
+    }
+    if (!/(?=.*[A-Z])/.test(password)) {
+      passwordIssues.push('one uppercase letter');
+    }
+    if (!/(?=.*\d)/.test(password)) {
+      passwordIssues.push('one number');
+    }
+    if (!/(?=.*[@$!%*?&])/.test(password)) {
+      passwordIssues.push('one special character (@$!%*?&)');
+    }
+    
+    if (passwordIssues.length > 0) {
+      errors.password = `Password must contain at least ${passwordIssues.join(', ')}`;
+    }
   }
 
-  if (errors.length > 0) {
+  if (Object.keys(errors).length > 0) {
     return res.status(400).json({
       success: false,
-      message: 'Validation failed',
-      errors
+      message: 'Please fix the following errors',
+      errors,
+      fieldErrors: errors // For easier frontend handling
     });
   }
+
+  // Trim whitespace from inputs
+  req.body.username = username.trim();
+  req.body.email = email.trim().toLowerCase();
 
   next();
 };
@@ -54,25 +84,35 @@ export const validateRegistration = (req, res, next) => {
  */
 export const validateLogin = (req, res, next) => {
   const { email, password } = req.body;
-  const errors = [];
+  const errors = {};
 
+  // Email validation
   if (!email || typeof email !== 'string') {
-    errors.push('Email is required');
-  } else if (!validator.isEmail(email)) {
-    errors.push('Please provide a valid email address');
+    errors.email = 'Email address is required';
+  } else if (!validator.isEmail(email.trim())) {
+    errors.email = 'Please enter a valid email address';
+  } else if (email.length > 255) {
+    errors.email = 'Email address is too long';
   }
 
+  // Password validation
   if (!password || typeof password !== 'string') {
-    errors.push('Password is required');
+    errors.password = 'Password is required';
+  } else if (password.length === 0) {
+    errors.password = 'Password cannot be empty';
   }
 
-  if (errors.length > 0) {
+  if (Object.keys(errors).length > 0) {
     return res.status(400).json({
       success: false,
-      message: 'Validation failed',
-      errors
+      message: 'Please fix the following errors',
+      errors,
+      fieldErrors: errors
     });
   }
+
+  // Trim and normalize email
+  req.body.email = email.trim().toLowerCase();
 
   next();
 };

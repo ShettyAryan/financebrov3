@@ -15,12 +15,25 @@ export const registerUser = asyncHandler(async (req, res) => {
   // Check if user already exists (use admin client to bypass RLS)
   const { data: existingUser, error: checkError } = await supabaseAdmin
     .from('users')
-    .select('id')
+    .select('id, email, username')
     .or(`email.eq.${email},username.eq.${username}`)
     .single();
 
   if (existingUser) {
-    return sendError(res, 'User with this email or username already exists', 409);
+    const errors = {};
+    if (existingUser.email === email) {
+      errors.email = 'An account with this email address already exists';
+    }
+    if (existingUser.username === username) {
+      errors.username = 'This username is already taken';
+    }
+    
+    return res.status(409).json({
+      success: false,
+      message: 'Account already exists',
+      errors,
+      fieldErrors: errors
+    });
   }
 
   // Hash password
@@ -44,7 +57,26 @@ export const registerUser = asyncHandler(async (req, res) => {
 
   if (error) {
     console.error('Registration error:', error);
-    return sendError(res, 'Failed to create user account', 500);
+    
+    // Handle specific database errors
+    if (error.code === '23505') { // Unique constraint violation
+      const errors = {};
+      if (error.message.includes('email')) {
+        errors.email = 'An account with this email address already exists';
+      }
+      if (error.message.includes('username')) {
+        errors.username = 'This username is already taken';
+      }
+      
+      return res.status(409).json({
+        success: false,
+        message: 'Account already exists',
+        errors,
+        fieldErrors: errors
+      });
+    }
+    
+    return sendError(res, 'Failed to create user account. Please try again.', 500);
   }
 
   // Generate JWT token
@@ -81,13 +113,33 @@ export const loginUser = asyncHandler(async (req, res) => {
     .single();
 
   if (error || !user) {
-    return sendError(res, 'Invalid email or password', 401);
+    return res.status(401).json({
+      success: false,
+      message: 'Invalid email or password',
+      errors: {
+        email: 'No account found with this email address',
+        password: 'Please check your password and try again'
+      },
+      fieldErrors: {
+        email: 'No account found with this email address',
+        password: 'Please check your password and try again'
+      }
+    });
   }
 
   // Verify password
   const isPasswordValid = await comparePassword(password, user.password_hash);
   if (!isPasswordValid) {
-    return sendError(res, 'Invalid email or password', 401);
+    return res.status(401).json({
+      success: false,
+      message: 'Invalid email or password',
+      errors: {
+        password: 'Incorrect password. Please try again.'
+      },
+      fieldErrors: {
+        password: 'Incorrect password. Please try again.'
+      }
+    });
   }
 
   // Generate JWT token
@@ -188,15 +240,28 @@ export const updateUserProfile = asyncHandler(async (req, res) => {
 
   // Check if username or email is already taken by another user
   if (username || email) {
-    const { data: existingUser, error: checkError } = await supabase
+    const { data: existingUser, error: checkError } = await supabaseAdmin
       .from('users')
-      .select('id')
+      .select('id, email, username')
       .neq('id', userId)
       .or(`email.eq.${email || ''},username.eq.${username || ''}`)
       .single();
 
     if (existingUser) {
-      return sendError(res, 'Username or email already taken', 409);
+      const errors = {};
+      if (existingUser.email === email) {
+        errors.email = 'This email address is already in use by another account';
+      }
+      if (existingUser.username === username) {
+        errors.username = 'This username is already taken by another user';
+      }
+      
+      return res.status(409).json({
+        success: false,
+        message: 'Update failed',
+        errors,
+        fieldErrors: errors
+      });
     }
   }
 
