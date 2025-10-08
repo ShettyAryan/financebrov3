@@ -1,8 +1,24 @@
 import { Button } from "@/components/ui/button";
 import { TrendingUp, Award, Target } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { AuthForm } from "@/components/AuthForm";
+import { useEffect } from "react";
 
 const Index = () => {
+  const { isAuthenticated, user } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/dashboard');
+    }
+  }, [isAuthenticated, navigate]);
+
+  const handleAuthSuccess = () => {
+    navigate('/dashboard');
+  };
+
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="max-w-6xl w-full grid lg:grid-cols-2 gap-12 items-center">
@@ -38,35 +54,22 @@ const Index = () => {
             </p>
           </div>
 
-          <div className="space-y-3">
-            <Link to="/dashboard" className="block">
-              <Button size="lg" className="w-full font-semibold">
-                Start Learning
-              </Button>
-            </Link>
-            
-            <Button size="lg" variant="outline" className="w-full font-semibold">
-              Continue as Guest
-            </Button>
-          </div>
+          <AuthForm onSuccess={handleAuthSuccess} />
 
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-border"></div>
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-card px-2 text-muted-foreground">Or sign in with</span>
+              <span className="bg-card px-2 text-muted-foreground">Or continue as</span>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <Button variant="outline" size="lg" className="font-medium">
-              Google
+          <Link to="/dashboard" className="block">
+            <Button size="lg" variant="outline" className="w-full font-semibold">
+              Continue as Guest
             </Button>
-            <Button variant="outline" size="lg" className="font-medium">
-              Email
-            </Button>
-          </div>
+          </Link>
 
           <p className="text-xs text-center text-muted-foreground pt-2">
             By continuing, you agree to our Terms of Service and Privacy Policy
