@@ -38,4 +38,12 @@ router.get('/:id', validateUUID('id'), optionalAuth, getLessonById);
  */
 router.post('/unlock', authenticateToken, unlockNextLesson);
 
+/**
+ * @route   POST /api/lessons/seed
+ * @desc    Seed beginner lessons (admin/dev use). Protected to prevent abuse.
+ * @access  Private
+ */
+import { seedLessons } from '../controllers/lessonController.js';
+router.post('/seed', authenticateToken, seedLessons);
+
 export default router;

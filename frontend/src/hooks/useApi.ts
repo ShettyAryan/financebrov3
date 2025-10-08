@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import apiClient, { Lesson, Progress, PracticeSession, User } from '@/lib/api';
+import apiClient, { Lesson, Progress, PracticeSession, User, UserProgressSummary } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
@@ -159,6 +159,47 @@ export const useUpdateProgress = () => {
     onError: (error) => {
       toast.error(error instanceof Error ? error.message : 'Failed to update progress');
     },
+  });
+};
+
+// Update stats with deltas and optionally unlock next lesson
+export const useUpdateStatsAndUnlock = () => {
+  const queryClient = useQueryClient();
+  const { refreshUser } = useAuth();
+
+  return useMutation({
+    mutationFn: (payload: {
+      xpDelta?: number;
+      coinsDelta?: number;
+      streakIncrement?: number;
+      lessonId?: string;
+      score?: number;
+    }) => apiClient.updateStatsAndUnlock(payload),
+    onSuccess: (result) => {
+      // Refresh relevant caches
+      queryClient.invalidateQueries({ queryKey: queryKeys.user });
+      queryClient.invalidateQueries({ queryKey: queryKeys.progress });
+      queryClient.invalidateQueries({ queryKey: queryKeys.progressStats });
+      queryClient.invalidateQueries({ queryKey: queryKeys.lessons });
+      refreshUser();
+      if (result.unlocked && result.nextLesson) {
+        toast.success(`Next lesson unlocked: ${result.nextLesson.title}`);
+      }
+    },
+    onError: (error) => {
+      toast.error(error instanceof Error ? error.message : 'Failed to update stats');
+    },
+  });
+};
+
+// User progress summary
+export const useUserProgressSummary = () => {
+  const { isAuthenticated } = useAuth();
+  return useQuery<UserProgressSummary>({
+    queryKey: ['user-progress-summary'],
+    queryFn: () => apiClient.getUserProgressSummary(),
+    enabled: isAuthenticated,
+    staleTime: 2 * 60 * 1000,
   });
 };
 

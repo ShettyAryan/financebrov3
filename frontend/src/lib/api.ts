@@ -72,6 +72,14 @@ export interface ApiResponse<T> {
   meta?: any;
 }
 
+// User progress summary type
+export interface UserProgressSummary {
+  completedLessons: number;
+  totalXp: number;
+  coinsBalance: number;
+  accuracyRate: number;
+}
+
 // API Client Class
 class ApiClient {
   private baseURL: string;
@@ -193,6 +201,31 @@ class ApiClient {
       method: 'PUT',
       body: JSON.stringify(stats),
     });
+    return response.data!;
+  }
+
+  // Update stats with deltas and optionally unlock next lesson
+  async updateStatsAndUnlock(payload: {
+    xpDelta?: number;
+    coinsDelta?: number;
+    streakIncrement?: number;
+    lessonId?: string;
+    score?: number;
+  }): Promise<{
+    user: User;
+    unlocked: boolean;
+    nextLesson?: { id: string; title: string; orderIndex: number } | null;
+  }> {
+    const response = await this.request<any>('/users/updateStats', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+    return response.data!;
+  }
+
+  // Progress summary (completed lessons, total XP, coins, accuracy)
+  async getUserProgressSummary(): Promise<UserProgressSummary> {
+    const response = await this.request<UserProgressSummary>('/users/progress');
     return response.data!;
   }
 

@@ -2,16 +2,19 @@ import { BottomNav } from "@/components/BottomNav";
 import { StatsDisplay } from "@/components/StatsDisplay";
 import { Award, CheckCircle2, TrendingUp, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useUser } from "@/hooks/useApi";
+import { useUserProgressSummary } from "@/hooks/useApi";
 
 const Profile = () => {
-  const userData = {
-    name: "Aryan",
-    level: 8,
-    streak: 7,
-    xp: 1250,
-    coins: 340,
-    xpToNextLevel: 250,
-  };
+  const { data: user } = useUser();
+  const { data: summary } = useUserProgressSummary();
+
+  const xp = user?.xp || 0;
+  const coins = user?.coins || 0;
+  const streak = user?.streak || 0;
+  const level = Math.floor(xp / 200) + 1; // simple level calc
+  const xpToNextLevel = (level * 200) - (xp % 200);
+  const name = user?.username || 'User';
 
   const badges = [
     { id: 1, name: "First Lesson", icon: "🎓", earned: true },
@@ -37,11 +40,11 @@ const Profile = () => {
                 <span className="text-3xl">👤</span>
               </div>
               <div className="flex-1 space-y-2">
-                <h1 className="font-heading font-bold text-2xl text-foreground">{userData.name}</h1>
+                <h1 className="font-heading font-bold text-2xl text-foreground">{name}</h1>
                 <div className="flex items-center gap-2">
                   <div className="px-3 py-1 bg-primary/10 rounded-full">
                     <span className="text-sm font-stats font-semibold text-primary">
-                      Level {userData.level}
+                      Level {level}
                     </span>
                   </div>
                 </div>
@@ -51,14 +54,14 @@ const Profile = () => {
                   <div className="flex justify-between text-xs">
                     <span className="text-muted-foreground">Level Progress</span>
                     <span className="font-stats font-medium text-primary">
-                      {userData.xp} / {userData.xp + userData.xpToNextLevel} XP
+                      {xp} / {xp + xpToNextLevel} XP
                     </span>
                   </div>
                   <div className="h-2 bg-muted rounded-full overflow-hidden">
                     <div
                       className="h-full bg-primary rounded-full transition-all duration-500"
                       style={{
-                        width: `${(userData.xp / (userData.xp + userData.xpToNextLevel)) * 100}%`,
+                        width: `${xp + xpToNextLevel === 0 ? 0 : (xp / (xp + xpToNextLevel)) * 100}%`,
                       }}
                     />
                   </div>
@@ -66,7 +69,7 @@ const Profile = () => {
               </div>
             </div>
 
-            <StatsDisplay {...userData} />
+            <StatsDisplay name={name} level={level} streak={streak} xp={xp} coins={coins} xpToNextLevel={xpToNextLevel} />
           </div>
         </div>
 
@@ -104,10 +107,10 @@ const Profile = () => {
           </div>
           <div className="bg-card rounded-2xl p-6 shadow-card space-y-4">
             <div className="grid grid-cols-2 gap-4">
-              <StatCard label="Accuracy" value="87%" color="text-primary" />
-              <StatCard label="Lessons" value={completedLessons.length} color="text-secondary" />
-              <StatCard label="Total XP" value={userData.xp} color="text-accent" />
-              <StatCard label="Streak" value={`${userData.streak} days`} color="text-destructive" />
+              <StatCard label="Accuracy" value={`${summary?.accuracyRate ?? 0}%`} color="text-primary" />
+              <StatCard label="Lessons" value={summary?.completedLessons ?? 0} color="text-secondary" />
+              <StatCard label="Total XP" value={xp} color="text-accent" />
+              <StatCard label="Streak" value={`${streak} days`} color="text-destructive" />
             </div>
           </div>
         </section>
@@ -118,21 +121,8 @@ const Profile = () => {
             <BookOpen className="w-5 h-5 text-primary" />
             <h2 className="font-heading font-bold text-xl text-foreground">Completed Lessons</h2>
           </div>
-          <div className="space-y-2">
-            {completedLessons.map((lesson) => (
-              <div
-                key={lesson.id}
-                className="bg-card rounded-xl p-4 shadow-card flex justify-between items-center"
-              >
-                <div className="space-y-1">
-                  <h3 className="font-medium text-foreground">{lesson.title}</h3>
-                  <p className="text-xs text-muted-foreground">{lesson.category}</p>
-                </div>
-                <div className="text-sm font-stats font-semibold text-primary">
-                  +{lesson.xp} XP
-                </div>
-              </div>
-            ))}
+          <div className="space-y-2 text-sm text-muted-foreground">
+            This will list your recent completed lessons once a history view is added.
           </div>
         </section>
 

@@ -1,6 +1,2301 @@
-import { supabase } from '../config/database.js';
+import { supabase, supabaseAdmin } from '../config/database.js';
 import { sendSuccess, sendError, sendNotFound, getPaginationMeta } from '../utils/response.js';
 import { asyncHandler } from '../middleware/errorHandler.js';
+
+/**
+ * Seed beginner lessons with structured content (concept, example, quiz)
+ * Adds lessons only if table is empty or missing the specific titles.
+ */
+export const seedLessons = asyncHandler(async (req, res) => {
+  // Define 6 beginner lessons in fundamental analysis with chunked content
+  const lessonsToSeed = [
+    {
+      title: "What is Fundamental Analysis?",
+      description:
+        "Learn what fundamental analysis means and how it differs from other investing approaches.",
+      category: "fundamental_analysis",
+      xp_reward: 50,
+      order_index: 1,
+      is_unlocked_by_default: true,
+      content: {
+        sections: [
+          {
+            type: "concept",
+            title: "Understanding Fundamental Analysis",
+            body: "Fundamental analysis is the process of evaluating a company’s financial health, business model, and future potential to determine its true value. Unlike technical analysis, which focuses on stock price movements and charts, fundamental analysis focuses on the company itself — its profits, assets, management, and growth prospects.",
+          },
+          {
+            type: "example",
+            title: "Real-life Example",
+            body: "Imagine you’re deciding between investing in Tata Motors and a small new electric vehicle startup. A fundamental analyst would study Tata Motors’ financial statements, past performance, and EV strategy to estimate if the company is undervalued or overvalued — rather than just looking at its stock chart.",
+          },
+          {
+            type: "quiz",
+            title: "Quiz: What is Fundamental Analysis?",
+            questions: [
+              {
+                id: "q1",
+                format: "mcq",
+                prompt:
+                  "Which of the following best describes fundamental analysis?",
+                options: [
+                  "Studying stock price charts to predict short-term moves",
+                  "Evaluating a company’s financial health and business fundamentals",
+                  "Using AI to automate stock trades",
+                  "Tracking investor emotions and sentiment",
+                ],
+                answer: 1,
+                solution_explanation:
+                  "Fundamental analysis looks at a company’s actual performance, finances, and prospects — not price charts or trading patterns.",
+              },
+              {
+                id: "q2",
+                format: "input",
+                inputType: "text",
+                prompt:
+                  "Name one key difference between fundamental and technical analysis.",
+                answer:
+                  "Fundamental analysis studies company performance while technical analysis studies price trends.",
+                solution_explanation:
+                  "Fundamental analysis focuses on intrinsic value; technical analysis focuses on market behavior and charts.",
+              },
+              {
+                id: "q3",
+                format: "mixed",
+                prompt:
+                  "An investor studying Infosys’ profit growth, balance sheet, and management team is performing what type of analysis?",
+                options: [
+                  "Technical analysis",
+                  "Fundamental analysis",
+                  "Quantitative trading",
+                ],
+                answer: 1,
+                solution_explanation:
+                  "Reviewing company fundamentals like profit and management is a hallmark of fundamental analysis.",
+              },
+            ],
+          },
+        ],
+      },
+    },
+    {
+      title: "Why Analyze Companies?",
+      description:
+        "Understand why company performance affects stock price and how value differs from price.",
+      category: "fundamental_analysis",
+      xp_reward: 60,
+      order_index: 2,
+      is_unlocked_by_default: false,
+      content: {
+        sections: [
+          {
+            type: "concept",
+            title: "The Link Between Company Performance & Stock Price",
+            body: "Over time, a company’s stock price tends to follow its financial performance. When profits rise consistently, investor confidence grows, pushing the price higher. Conversely, poor results often lead to falling prices.",
+          },
+          {
+            type: "example",
+            title: "Real-life Example",
+            body: "When Apple consistently launched innovative products and grew its profits, its stock price increased steadily. But when companies like Nokia or Blackberry lost market share and revenue, their stock prices dropped.",
+          },
+          {
+            type: "quiz",
+            title: "Quiz: Why Analyze Companies?",
+            questions: [
+              {
+                id: "q1",
+                format: "mcq",
+                prompt:
+                  "Why does a company’s stock price usually rise when profits increase?",
+                options: [
+                  "Because traders follow rumors",
+                  "Because higher profits often mean higher value and investor demand",
+                  "Because the stock exchange forces prices up",
+                  "Because interest rates always fall",
+                ],
+                answer: 1,
+                solution_explanation:
+                  "Growing profits suggest business strength, which attracts investors — increasing demand and price.",
+              },
+              {
+                id: "q2",
+                format: "input",
+                inputType: "text",
+                prompt:
+                  "Fill in the blank: Value is what you ____ for, price is what you ___.",
+                answer: "get, pay",
+                solution_explanation:
+                  "Warren Buffett’s famous quote: “Price is what you pay; value is what you get.” It highlights the difference between market price and true worth.",
+              },
+              {
+                id: "q3",
+                format: "mixed",
+                prompt:
+                  "If a company’s intrinsic value is ₹500 per share but the market price is ₹400, what does this suggest?",
+                options: [
+                  "The stock is overvalued",
+                  "The stock is undervalued",
+                  "The stock is fairly priced",
+                ],
+                answer: 1,
+                solution_explanation:
+                  "If the true value exceeds the market price, the stock may be undervalued — a potential buying opportunity.",
+              },
+            ],
+          },
+        ],
+      },
+    },
+    {
+      title: "Types of Fundamental Analysis",
+      description:
+        "Learn the two main approaches to analyzing a company — qualitative and quantitative.",
+      category: "fundamental_analysis",
+      xp_reward: 70,
+      order_index: 3,
+      is_unlocked_by_default: false,
+      content: {
+        sections: [
+          {
+            type: "concept",
+            title: "Qualitative vs. Quantitative Analysis",
+            body: "Fundamental analysis has two parts: qualitative (the non-numerical aspects like management quality, business model, and brand strength) and quantitative (numbers like revenue, profit, ratios, and valuation). Both together give a complete view of the company.",
+          },
+          {
+            type: "example",
+            title: "Real-life Example",
+            body: "When evaluating Hindustan Unilever, qualitative factors include its trusted brand and management quality, while quantitative analysis involves studying financial ratios like profit margin and return on equity.",
+          },
+          {
+            type: "quiz",
+            title: "Quiz: Types of Fundamental Analysis",
+            questions: [
+              {
+                id: "q1",
+                format: "mcq",
+                prompt: "Which of the following is a qualitative factor?",
+                options: [
+                  "Debt-to-Equity Ratio",
+                  "Revenue Growth",
+                  "Brand Strength",
+                  "Profit Margin",
+                ],
+                answer: 2,
+                solution_explanation:
+                  "Brand strength relates to how customers perceive a company — a non-numerical qualitative factor.",
+              },
+              {
+                id: "q2",
+                format: "input",
+                inputType: "text",
+                prompt:
+                  "Name one common quantitative metric used in fundamental analysis.",
+                answer: "Earnings Per Share",
+                solution_explanation:
+                  "Quantitative metrics include financial ratios like EPS, ROE, or Profit Margin — all based on data.",
+              },
+              {
+                id: "q3",
+                format: "mixed",
+                prompt:
+                  "When an investor studies both a company’s financials and leadership team, they are performing:",
+                options: [
+                  "Only technical analysis",
+                  "Only qualitative analysis",
+                  "Both qualitative and quantitative analysis",
+                ],
+                answer: 2,
+                solution_explanation:
+                  "Combining both perspectives gives a more balanced view of the company’s true value.",
+              },
+            ],
+          },
+        ],
+      },
+    },
+    {
+      title: "Reading a Company’s Business Model",
+      description:
+        "Understand how a company makes money and sustains its operations.",
+      category: "fundamental_analysis",
+      xp_reward: 80,
+      order_index: 4,
+      is_unlocked_by_default: false,
+      content: {
+        sections: [
+          {
+            type: "concept",
+            title: "What Is a Business Model?",
+            body: "A business model explains how a company creates, delivers, and captures value. It shows what the company sells, to whom, and how it earns profit. Understanding this helps investors know if the business is sustainable and scalable.",
+          },
+          {
+            type: "example",
+            title: "Real-Life Example",
+            body: "Swiggy’s business model connects restaurants and customers through its app. It earns commissions from restaurants and delivery fees from users. Its success depends on efficient logistics and strong customer loyalty.",
+          },
+          {
+            type: "quiz",
+            title: "Quiz: Business Model Basics",
+            questions: [
+              {
+                id: "q1",
+                format: "mcq",
+                prompt:
+                  "What does a company’s business model primarily describe?",
+                options: [
+                  "Its daily stock price movement",
+                  "How it makes and delivers value to customers",
+                  "Only its financial ratios",
+                  "The size of its competitor base",
+                ],
+                answer: 1,
+                solution_explanation:
+                  "A business model focuses on how a company earns money and delivers value, not on share prices or ratios.",
+              },
+              {
+                id: "q2",
+                format: "input",
+                inputType: "text",
+                prompt:
+                  "Fill in: Netflix’s main revenue model is based on ______ subscriptions.",
+                answer: "streaming",
+                solution_explanation:
+                  "Netflix earns revenue through monthly streaming subscriptions paid by its users.",
+              },
+              {
+                id: "q3",
+                format: "mixed",
+                prompt:
+                  "If Zomato introduces grocery delivery to expand revenue sources, what business model change is this?",
+                options: [
+                  "Cost reduction",
+                  "Diversification",
+                  "Monopoly creation",
+                ],
+                answer: 1,
+                solution_explanation:
+                  "Adding grocery delivery diversifies revenue streams beyond restaurant orders.",
+              },
+            ],
+          },
+        ],
+      },
+    },
+    {
+      title: "Industry Life Cycle (Growth, Mature, Decline)",
+      description:
+        "Learn how industries evolve over time and how it affects company prospects.",
+      category: "fundamental_analysis",
+      xp_reward: 90,
+      order_index: 5,
+      is_unlocked_by_default: false,
+      content: {
+        sections: [
+          {
+            type: "concept",
+            title: "Understanding Industry Life Cycles",
+            body: "Every industry passes through stages—introduction, growth, maturity, and decline. Knowing which stage an industry is in helps investors gauge potential risks and opportunities.",
+          },
+          {
+            type: "example",
+            title: "Real-Life Example",
+            body: "The smartphone industry saw rapid growth from 2007–2015 (growth phase). It’s now mature, with slower innovation. Meanwhile, the electric vehicle industry is in the growth stage, attracting heavy investment.",
+          },
+          {
+            type: "quiz",
+            title: "Quiz: Industry Life Cycle",
+            questions: [
+              {
+                id: "q1",
+                format: "mcq",
+                prompt:
+                  "Which stage of an industry usually sees the highest competition and slower growth?",
+                options: ["Introduction", "Growth", "Maturity", "Decline"],
+                answer: 2,
+                solution_explanation:
+                  "In maturity, growth stabilizes and competitors fight for market share.",
+              },
+              {
+                id: "q2",
+                format: "input",
+                inputType: "text",
+                prompt:
+                  "Name one industry currently in the 'growth' phase in India.",
+                answer: "Electric vehicles",
+                solution_explanation:
+                  "EVs, renewable energy, and fintech are examples of fast-growing industries in India.",
+              },
+              {
+                id: "q3",
+                format: "mixed",
+                prompt:
+                  "If an investor sees a sector with shrinking sales and new technology replacing it, which phase is it likely in?",
+                options: ["Growth", "Maturity", "Decline"],
+                answer: 2,
+                solution_explanation:
+                  "Falling sales and technological obsolescence signal the decline phase.",
+              },
+            ],
+          },
+        ],
+      },
+    },
+    {
+      title: "Competitive Advantage (Moat)",
+      description:
+        "Discover what gives a company long-term protection from competitors.",
+      category: "fundamental_analysis",
+      xp_reward: 100,
+      order_index: 6,
+      is_unlocked_by_default: false,
+      content: {
+        sections: [
+          {
+            type: "concept",
+            title: "What Is a Moat?",
+            body: "A moat is a company’s unique advantage that protects it from competitors—like a strong brand, patents, cost efficiency, or network effects. Firms with wide moats can sustain high profits longer.",
+          },
+          {
+            type: "example",
+            title: "Real-Life Example",
+            body: "Apple’s ecosystem (iPhone, Mac, Watch, services) creates a moat through brand loyalty and seamless integration. It’s hard for users to switch, keeping competitors at bay.",
+          },
+          {
+            type: "quiz",
+            title: "Quiz: Competitive Advantage",
+            questions: [
+              {
+                id: "q1",
+                format: "mcq",
+                prompt: "Which of the following is a strong competitive moat?",
+                options: [
+                  "High short-term advertising spend",
+                  "Unique patented technology difficult to copy",
+                  "Frequent CEO changes",
+                  "Rising debt levels",
+                ],
+                answer: 1,
+                solution_explanation:
+                  "Patents prevent competitors from copying products, giving durable advantage.",
+              },
+              {
+                id: "q2",
+                format: "input",
+                inputType: "text",
+                prompt:
+                  "Fill in the blank: A company with strong customer loyalty and brand recognition has a ______ moat.",
+                answer: "brand",
+                solution_explanation:
+                  "Customer trust and recognition create a brand moat that keeps competitors away.",
+              },
+              {
+                id: "q3",
+                format: "mixed",
+                prompt:
+                  "Why is having a wide moat valuable for long-term investors?",
+                options: [
+                  "It ensures high short-term trading profits",
+                  "It helps the company sustain profits and market share over time",
+                  "It eliminates all business risk",
+                ],
+                answer: 1,
+                solution_explanation:
+                  "A wide moat helps maintain profitability even when markets fluctuate or competitors emerge.",
+              },
+            ],
+          },
+        ],
+      },
+    },
+    {
+      title: "Porter’s Five Forces",
+      description: "Analyze industry competition using Porter’s framework.",
+      category: "fundamental_analysis",
+      xp_reward: 110,
+      order_index: 7,
+      is_unlocked_by_default: false,
+      content: {
+        sections: [
+          {
+            type: "concept",
+            title: "Understanding Porter’s Five Forces",
+            body: "Michael Porter’s model identifies five factors shaping industry competition: (1) threat of new entrants, (2) threat of substitutes, (3) bargaining power of suppliers, (4) bargaining power of buyers, and (5) rivalry among existing competitors.",
+          },
+          {
+            type: "example",
+            title: "Real-Life Example",
+            body: "In the airline industry, intense rivalry and high supplier power (fuel, aircraft) make profits thin. In contrast, Google’s search business faces few substitutes and high entry barriers, strengthening its position.",
+          },
+          {
+            type: "quiz",
+            title: "Quiz: Porter’s Five Forces",
+            questions: [
+              {
+                id: "q1",
+                format: "mcq",
+                prompt:
+                  "Which of the following is NOT part of Porter’s Five Forces?",
+                options: [
+                  "Threat of new entrants",
+                  "Bargaining power of suppliers",
+                  "Government regulation",
+                  "Rivalry among competitors",
+                ],
+                answer: 2,
+                solution_explanation:
+                  "Government regulation affects industries but isn’t one of Porter’s five core forces.",
+              },
+              {
+                id: "q2",
+                format: "input",
+                inputType: "text",
+                prompt:
+                  "Name one industry where the threat of new entrants is low due to high capital needs.",
+                answer: "Airlines",
+                solution_explanation:
+                  "Airlines, oil refining, and telecom require huge investments, limiting new entrants.",
+              },
+              {
+                id: "q3",
+                format: "mixed",
+                prompt:
+                  "If customers can easily switch to substitutes, what happens to industry profitability?",
+                options: ["It increases", "It decreases", "It stays the same"],
+                answer: 1,
+                solution_explanation:
+                  "When substitutes are easily available, customers switch quickly, pressuring prices and profits.",
+              },
+            ],
+          },
+        ],
+      },
+    },
+    {
+      title: "The Income Statement",
+      description:
+        "Learn how revenue, expenses, and profit are reported and interpreted.",
+      category: "fundamental_analysis",
+      xp_reward: 120,
+      order_index: 8,
+      is_unlocked_by_default: false,
+      content: {
+        sections: [
+          {
+            type: "concept",
+            title: "What Is an Income Statement?",
+            body: [
+              "The income statement (also called the Profit & Loss statement) shows performance over a period — usually a quarter or a year.",
+              "",
+              "It answers: *Did the company make a profit?*",
+              "",
+              "Key elements:",
+              "• **Revenue (Sales)** – total money earned from goods/services.",
+              "• **Cost of Goods Sold (COGS)** – direct costs of producing goods.",
+              "• **Gross Profit = Revenue − COGS**.",
+              "• **Operating Expenses** – salaries, rent, marketing, admin.",
+              "• **Operating Profit (EBIT) = Gross Profit − Operating Expenses**.",
+              "• **Net Income = Operating Profit − Interest − Taxes.**",
+              "",
+              "High profits signal efficiency; falling profits warn of cost or demand issues.",
+            ].join("\n"),
+          },
+          {
+            type: "example",
+            title: "Example: Tata Consumer Products FY2024",
+            body: [
+              "• Revenue: ₹15,000 crore",
+              "• COGS: ₹9,000 crore → Gross Profit = ₹6,000 crore",
+              "• Operating Expenses: ₹3,000 crore → EBIT = ₹3,000 crore",
+              "• Interest + Taxes: ₹1,000 crore → Net Income = ₹2,000 crore.",
+              "",
+              "This shows the company earns ₹2,000 crore after covering all costs — a profit margin of roughly 13 %.",
+            ].join("\n"),
+          },
+          {
+            type: "quiz",
+            title: "Quiz: Income Statement",
+            questions: [
+              {
+                id: "q1",
+                format: "mcq",
+                prompt: "Which statement correctly defines *Net Income*?",
+                options: [
+                  "Revenue minus COGS",
+                  "Operating Profit minus Interest and Taxes",
+                  "Total Assets minus Total Liabilities",
+                  "Cash Inflow from Operations",
+                ],
+                answer: 1,
+                solution_explanation:
+                  "Net Income = Operating Profit − Interest − Taxes.",
+              },
+              {
+                id: "q2",
+                format: "input",
+                inputType: "number",
+                prompt:
+                  "Revenue ₹800 cr, COGS ₹500 cr, Operating Exp ₹200 cr, Interest+Tax ₹50 cr. Find Net Income (₹ cr).",
+                answer: 50,
+                solution_explanation: "800−500−200−50 = ₹50 cr Net Income.",
+              },
+              {
+                id: "q3",
+                format: "mixed",
+                prompt:
+                  "If expenses grow faster than revenue, what happens to net profit?",
+                options: ["Increases", "Decreases", "Unchanged"],
+                answer: 1,
+                solution_explanation:
+                  "Higher costs without matching sales reduce profit → Net Income falls.",
+              },
+            ],
+          },
+        ],
+      },
+    },
+    {
+      title: "The Balance Sheet",
+      description:
+        "Understand what a company owns, owes, and the net worth (equity).",
+      category: "fundamental_analysis",
+      xp_reward: 130,
+      order_index: 9,
+      is_unlocked_by_default: false,
+      content: {
+        sections: [
+          {
+            type: "concept",
+            title: "What Is a Balance Sheet?",
+            body: [
+              "A balance sheet shows a company’s financial position *on a specific date*.",
+              "",
+              "**Formula:** Assets = Liabilities + Shareholders’ Equity.",
+              "",
+              "• **Assets** – resources owned (cash, buildings, equipment).",
+              "• **Liabilities** – debts or obligations (loans, payables).",
+              "• **Equity** – residual value for owners after debts are paid.",
+              "",
+              "It helps investors gauge financial stability and leverage.",
+            ].join("\n"),
+          },
+          {
+            type: "example",
+            title: "Example: Maruti Suzuki Snapshot",
+            body: [
+              "Assets ₹80,000 cr; Liabilities ₹30,000 cr → Equity = ₹50,000 cr.",
+              "Assets = 30,000 + 50,000 = 80,000 ✅ Balanced.",
+              "Healthy because more equity funding and low debt keep risk moderate.",
+            ].join("\n"),
+          },
+          {
+            type: "quiz",
+            title: "Quiz: Balance Sheet",
+            questions: [
+              {
+                id: "q1",
+                format: "mcq",
+                prompt: "Which equation always holds true for a balance sheet?",
+                options: [
+                  "Assets = Liabilities − Equity",
+                  "Assets = Liabilities + Equity",
+                  "Revenue = Assets + Liabilities",
+                  "Equity = Cash + Inventory",
+                ],
+                answer: 1,
+                solution_explanation:
+                  "Assets = Liabilities + Equity is the fundamental accounting rule.",
+              },
+              {
+                id: "q2",
+                format: "input",
+                inputType: "number",
+                prompt:
+                  "Assets ₹500 cr, Liabilities ₹320 cr. Find Equity (₹ cr).",
+                answer: 180,
+                solution_explanation: "Equity = 500−320 = ₹180 cr.",
+              },
+              {
+                id: "q3",
+                format: "mixed",
+                prompt:
+                  "If a firm borrows ₹50 cr to buy machines, how are the balance-sheet totals affected?",
+                options: [
+                  "Assets ↑ Liabilities ↑ by ₹50 cr",
+                  "Assets ↓ Equity ↑",
+                  "Liabilities ↓ Cash ↑",
+                ],
+                answer: 0,
+                solution_explanation:
+                  "Borrowing adds both an asset (machine) and a liability (loan).",
+              },
+            ],
+          },
+        ],
+      },
+    },
+    {
+      title: "The Cash Flow Statement",
+      description:
+        "Track how cash moves in and out through operating, investing, and financing activities.",
+      category: "fundamental_analysis",
+      xp_reward: 140,
+      order_index: 10,
+      is_unlocked_by_default: false,
+      content: {
+        sections: [
+          {
+            type: "concept",
+            title: "Understanding Cash Flow",
+            body: [
+              "Profit ≠ Cash. A company can show profit yet have little cash if payments are delayed.",
+              "",
+              "The cash flow statement groups movements into:",
+              "1. **Operating Activities** – cash from core business (sales − payments).",
+              "2. **Investing Activities** – buying/selling assets or investments.",
+              "3. **Financing Activities** – loans, dividends, share issues.",
+              "",
+              "**Free Cash Flow (FCF)** = Operating Cash Flow − Capital Expenditure. It shows cash left for dividends, debt repayment, or reinvestment.",
+            ].join("\n"),
+          },
+          {
+            type: "example",
+            title: "Example: Reliance Industries",
+            body: [
+              "• Operating Cash Flow: ₹1,20,000 cr",
+              "• Capital Expenditure: ₹70,000 cr → FCF = ₹50,000 cr",
+              "• Financing Outflows: ₹30,000 cr (loans repayment)",
+              "→ Ending Cash increased by ₹20,000 cr.",
+            ].join("\n"),
+          },
+          {
+            type: "quiz",
+            title: "Quiz: Cash Flow",
+            questions: [
+              {
+                id: "q1",
+                format: "mcq",
+                prompt: "Which activity involves buying new equipment?",
+                options: [
+                  "Operating Activity",
+                  "Investing Activity",
+                  "Financing Activity",
+                ],
+                answer: 1,
+                solution_explanation: "Buying assets is an investing activity.",
+              },
+              {
+                id: "q2",
+                format: "input",
+                inputType: "number",
+                prompt:
+                  "Operating CF ₹400 cr, CapEx ₹250 cr. Find Free Cash Flow (₹ cr).",
+                answer: 150,
+                solution_explanation: "FCF = 400 − 250 = ₹150 cr.",
+              },
+              {
+                id: "q3",
+                format: "mixed",
+                prompt:
+                  "If profits rise but operating cash flow falls, what could be the reason?",
+                options: [
+                  "Customers paying late / more credit sales",
+                  "Company earning more cash upfront",
+                  "Depreciation expense fell",
+                ],
+                answer: 0,
+                solution_explanation:
+                  "High receivables reduce cash inflow even when profits look good.",
+              },
+            ],
+          },
+        ],
+      },
+    },
+    {
+      title: "Linking the 3 Statements",
+      description:
+        "Understand how profit, cash, and assets connect to form a full financial picture.",
+      category: "fundamental_analysis",
+      xp_reward: 150,
+      order_index: 11,
+      is_unlocked_by_default: false,
+      content: {
+        sections: [
+          {
+            type: "concept",
+            title: "How the 3 Statements Connect",
+            body: [
+              "All statements talk to each other:",
+              "1. **Net Income** from the Income Statement flows to **Retained Earnings** on the Balance Sheet.",
+              "2. **Cash Flow Statement** starts with that Net Income and adjusts for non-cash items (e.g., depreciation).",
+              "3. The final cash balance from Cash Flow appears under **Assets → Cash** on the Balance Sheet.",
+              "",
+              "This linkage ensures accounting consistency — every profit or expense eventually affects cash or equity.",
+            ].join("\n"),
+          },
+          {
+            type: "example",
+            title: "Example: HDFC Bank",
+            body: [
+              "• Income Statement: Net Profit ₹5,000 cr.",
+              "• Balance Sheet: Retained Earnings increase by ₹5,000 cr (less any dividends).",
+              "• Cash Flow: Starts with ₹5,000 cr Net Income; after adjustments, shows actual cash change of ₹4,800 cr.",
+              "",
+              "Thus, profit links to equity and cash together.",
+            ].join("\n"),
+          },
+          {
+            type: "quiz",
+            title: "Quiz: Linking Statements",
+            questions: [
+              {
+                id: "q1",
+                format: "mcq",
+                prompt:
+                  "Which item from the income statement feeds into retained earnings on the balance sheet?",
+                options: ["Revenue", "Net Income", "Operating Expense"],
+                answer: 1,
+                solution_explanation: "Net Income increases Retained Earnings.",
+              },
+              {
+                id: "q2",
+                format: "input",
+                inputType: "text",
+                prompt:
+                  "When profits are kept instead of paid as dividends, which balance-sheet section grows?",
+                answer: "retained earnings",
+                solution_explanation:
+                  "Undistributed profits accumulate as Retained Earnings in Equity.",
+              },
+              {
+                id: "q3",
+                format: "mixed",
+                prompt:
+                  "Depreciation reduces profit but adds back to cash flow because:",
+                options: [
+                  "It is a non-cash expense",
+                  "It involves cash payment for assets",
+                  "It increases liabilities",
+                ],
+                answer: 0,
+                solution_explanation:
+                  "Depreciation lowers accounting profit but no cash goes out, so it’s added back in cash flow.",
+              },
+            ],
+          },
+        ],
+      },
+    },
+    {
+      title: "Profitability Ratios",
+      description:
+        "Measure how efficiently a company turns sales and capital into profit.",
+      category: "fundamental_analysis",
+      xp_reward: 160,
+      order_index: 12,
+      is_unlocked_by_default: false,
+      content: {
+        sections: [
+          {
+            type: "concept",
+            title: "Understanding Profitability Ratios",
+            body: [
+              "Profitability ratios show how well a company converts revenue and capital into profit.",
+              "",
+              "Key ratios taught here:",
+              "1) Gross Margin = (Revenue − Cost of Goods Sold) ÷ Revenue.",
+              "   • What it tells you: How much profit is left after direct costs of making the product/service.",
+              "   • Simple view: Higher gross margin ⇒ better basic product economics.",
+              "",
+              "2) Operating Margin = Operating Profit (EBIT) ÷ Revenue.",
+              "   • What it tells you: Profitability after operating costs (salaries, rent, marketing) but before interest and taxes.",
+              "   • Simple view: Shows core business efficiency.",
+              "",
+              "3) ROE (Return on Equity) = Net Income ÷ Shareholders’ Equity.",
+              "   • What it tells you: How effectively the company uses owners’ money to generate profit.",
+              "   • Simple view: Higher ROE (sustainably) ⇒ management is using equity efficiently.",
+              "",
+              "4) ROA (Return on Assets) = Net Income ÷ Total Assets.",
+              "   • What it tells you: How efficiently the company uses all assets to generate profit.",
+              "   • Simple view: Useful when comparing asset-heavy vs. asset-light businesses.",
+            ].join("\n"),
+          },
+          {
+            type: "example",
+            title: "Real-Life Style Example",
+            body: [
+              "Imagine a consumer electronics retailer (like a large electronics chain).",
+              "• Revenue = ₹1,000 crore; COGS = ₹700 crore → Gross Margin = (1,000 − 700) ÷ 1,000 = 30%.",
+              "• Operating expenses (salaries, rent, ads) bring Operating Profit (EBIT) to ₹150 crore → Operating Margin = 150 ÷ 1,000 = 15%.",
+              "• Net Income = ₹100 crore; Shareholders’ Equity = ₹500 crore → ROE = 100 ÷ 500 = 20%.",
+              "• Total Assets = ₹1,250 crore → ROA = 100 ÷ 1,250 = 8%.",
+            ].join("\n"),
+          },
+          {
+            type: "quiz",
+            title: "Quiz: Profitability Ratios",
+            questions: [
+              {
+                id: "q1",
+                format: "mcq",
+                prompt: "Which formula correctly defines Gross Margin?",
+                options: [
+                  "COGS ÷ Revenue",
+                  "(Revenue − COGS) ÷ Revenue",
+                  "Operating Profit ÷ Revenue",
+                  "Net Income ÷ Equity",
+                ],
+                answer: 1,
+                solution_explanation:
+                  "Gross Margin focuses on profit after direct costs: (Revenue − COGS) ÷ Revenue.",
+              },
+              {
+                id: "q2",
+                format: "input",
+                inputType: "number",
+                prompt:
+                  "A company has Net Income ₹60 crore and Equity ₹300 crore. What is ROE (%)? (Answer as a number only, e.g., 20 for 20%)",
+                answer: 20,
+                solution_explanation: "ROE = 60 ÷ 300 = 0.20 = 20%.",
+              },
+              {
+                id: "q3",
+                format: "mixed",
+                prompt:
+                  "Revenue ₹800 crore; Operating Profit (EBIT) ₹96 crore. What is Operating Margin (%)?",
+                options: ["10%", "12%", "15%"],
+                answer: 1,
+                solution_explanation:
+                  "Operating Margin = EBIT ÷ Revenue = 96 ÷ 800 = 0.12 = 12%.",
+              },
+            ],
+          },
+        ],
+      },
+    },
+    {
+      title: "Liquidity Ratios",
+      description:
+        "Check a company’s ability to pay short-term bills without stress.",
+      category: "fundamental_analysis",
+      xp_reward: 170,
+      order_index: 13,
+      is_unlocked_by_default: false,
+      content: {
+        sections: [
+          {
+            type: "concept",
+            title: "Understanding Liquidity Ratios",
+            body: [
+              "Liquidity ratios show if a company can meet near-term obligations.",
+              "",
+              "1) Current Ratio = Current Assets ÷ Current Liabilities.",
+              "   • What it tells you: Can the company cover short-term liabilities using all current assets?",
+              "   • Rule of thumb: Around 1.5–2.0 is often comfortable (varies by industry).",
+              "",
+              "2) Quick Ratio (Acid-Test) = (Current Assets − Inventory) ÷ Current Liabilities.",
+              "   • What it tells you: Can the company pay short-term liabilities using the most liquid assets (cash, receivables), excluding inventory?",
+              "   • Why exclude inventory? It may take time to sell and convert to cash.",
+            ].join("\n"),
+          },
+          {
+            type: "example",
+            title: "Real-Life Style Example",
+            body: [
+              "Consider a retailer that holds stock (inventory):",
+              "• Current Assets ₹600 crore (includes Inventory ₹200 crore); Current Liabilities ₹300 crore.",
+              "• Current Ratio = 600 ÷ 300 = 2.0 → Looks comfortable.",
+              "• Quick Ratio = (600 − 200) ÷ 300 = 400 ÷ 300 ≈ 1.33 → Still decent even after excluding inventory.",
+            ].join("\n"),
+          },
+          {
+            type: "quiz",
+            title: "Quiz: Liquidity Ratios",
+            questions: [
+              {
+                id: "q1",
+                format: "mcq",
+                prompt: "Which item is excluded from the Quick Ratio?",
+                options: ["Cash", "Accounts Receivable", "Inventory"],
+                answer: 2,
+                solution_explanation:
+                  "Quick Ratio removes inventory to focus on the most liquid assets.",
+              },
+              {
+                id: "q2",
+                format: "input",
+                inputType: "number",
+                prompt:
+                  "Current Assets ₹450 crore; Current Liabilities ₹225 crore. Current Ratio = ?",
+                answer: 2,
+                solution_explanation: "Current Ratio = 450 ÷ 225 = 2.0.",
+              },
+              {
+                id: "q3",
+                format: "mixed",
+                prompt:
+                  "Current Assets ₹900 crore (Inventory ₹300 crore), Current Liabilities ₹600 crore. What is the Quick Ratio?",
+                options: ["0.8", "1.0", "1.2"],
+                answer: 1,
+                solution_explanation:
+                  "Quick Ratio = (900 − 300) ÷ 600 = 600 ÷ 600 = 1.0.",
+              },
+            ],
+          },
+        ],
+      },
+    },
+    {
+      title: "Solvency Ratios",
+      description:
+        "Assess long-term financial stability and debt-servicing ability.",
+      category: "fundamental_analysis",
+      xp_reward: 180,
+      order_index: 14,
+      is_unlocked_by_default: false,
+      content: {
+        sections: [
+          {
+            type: "concept",
+            title: "Understanding Solvency Ratios",
+            body: [
+              "Solvency ratios look at long-term financial health and debt capacity.",
+              "",
+              "1) Debt-to-Equity (D/E) = Total Debt ÷ Shareholders’ Equity.",
+              "   • What it tells you: How leveraged the company is. Higher D/E ⇒ more debt relative to equity.",
+              "   • Simple view: Too much debt can increase risk during downturns.",
+              "",
+              "2) Interest Coverage Ratio = EBIT ÷ Interest Expense.",
+              "   • What it tells you: How comfortably a company can pay interest out of operating profit.",
+              "   • Rule of thumb: Above ~3× is generally comfortable (varies by industry/cycle).",
+            ].join("\n"),
+          },
+          {
+            type: "example",
+            title: "Real-Life Style Example",
+            body: [
+              "Suppose an industrial firm has Total Debt ₹1,200 crore and Equity ₹800 crore → D/E = 1,200 ÷ 800 = 1.5.",
+              "EBIT ₹600 crore; Interest Expense ₹150 crore → Interest Coverage = 600 ÷ 150 = 4× (comfortable).",
+            ].join("\n"),
+          },
+          {
+            type: "quiz",
+            title: "Quiz: Solvency Ratios",
+            questions: [
+              {
+                id: "q1",
+                format: "mcq",
+                prompt:
+                  "Which ratio measures the ability to pay interest from operating profit?",
+                options: [
+                  "Debt-to-Equity",
+                  "Interest Coverage",
+                  "Current Ratio",
+                ],
+                answer: 1,
+                solution_explanation:
+                  "Interest Coverage = EBIT ÷ Interest Expense shows how easily interest is serviced.",
+              },
+              {
+                id: "q2",
+                format: "input",
+                inputType: "number",
+                prompt:
+                  "Total Debt ₹900 crore; Equity ₹600 crore. What is D/E?",
+                answer: 1.5,
+                solution_explanation: "D/E = 900 ÷ 600 = 1.5.",
+              },
+              {
+                id: "q3",
+                format: "mixed",
+                prompt:
+                  "EBIT ₹240 crore; Interest Expense ₹80 crore. Interest Coverage = ?",
+                options: ["2×", "3×", "4×"],
+                answer: 2,
+                solution_explanation:
+                  "Interest Coverage = 240 ÷ 80 = 3.0× → choose 3×.",
+              },
+            ],
+          },
+        ],
+      },
+    },
+    {
+      title: "Efficiency Ratios",
+      description:
+        "See how effectively a company uses its inventory and assets to generate sales.",
+      category: "fundamental_analysis",
+      xp_reward: 190,
+      order_index: 15,
+      is_unlocked_by_default: false,
+      content: {
+        sections: [
+          {
+            type: "concept",
+            title: "Understanding Efficiency Ratios",
+            body: [
+              "Efficiency ratios show how well resources generate sales.",
+              "",
+              "1) Inventory Turnover = COGS ÷ Average Inventory.",
+              "   • What it tells you: How many times inventory is sold and replaced during a period.",
+              "   • Simple view: Higher turnover (for similar businesses) ⇒ faster movement, less stock sitting idle.",
+              "",
+              "2) Asset Turnover = Revenue ÷ Average Total Assets.",
+              "   • What it tells you: How efficiently total assets generate sales.",
+              "   • Simple view: Higher asset turnover (within the same industry) ⇒ assets are being used more efficiently.",
+            ].join("\n"),
+          },
+          {
+            type: "example",
+            title: "Real-Life Style Example",
+            body: [
+              "A grocery chain typically has fast-moving goods:",
+              "• COGS ₹1,200 crore; Average Inventory ₹200 crore → Inventory Turnover = 1,200 ÷ 200 = 6× (stock turns six times a year).",
+              "• Revenue ₹2,000 crore; Average Assets ₹1,000 crore → Asset Turnover = 2,000 ÷ 1,000 = 2×.",
+            ].join("\n"),
+          },
+          {
+            type: "quiz",
+            title: "Quiz: Efficiency Ratios",
+            questions: [
+              {
+                id: "q1",
+                format: "mcq",
+                prompt: "Which is the correct formula for Inventory Turnover?",
+                options: [
+                  "Revenue ÷ Average Inventory",
+                  "COGS ÷ Average Inventory",
+                  "COGS ÷ Average Assets",
+                ],
+                answer: 1,
+                solution_explanation:
+                  "Inventory Turnover uses COGS in the numerator: COGS ÷ Average Inventory.",
+              },
+              {
+                id: "q2",
+                format: "input",
+                inputType: "number",
+                prompt:
+                  "Revenue ₹1,800 crore; Average Assets ₹900 crore. Asset Turnover = ?",
+                answer: 2,
+                solution_explanation: "Asset Turnover = 1,800 ÷ 900 = 2.0.",
+              },
+              {
+                id: "q3",
+                format: "mixed",
+                prompt:
+                  "COGS ₹900 crore; Average Inventory ₹300 crore. Inventory Turnover = ?",
+                options: ["2×", "3×", "4×"],
+                answer: 1,
+                solution_explanation: "Inventory Turnover = 900 ÷ 300 = 3×.",
+              },
+            ],
+          },
+        ],
+      },
+    },
+    {
+      title: "Price vs. Value",
+      description:
+        "Learn the crucial difference between what a stock costs and what it’s really worth.",
+      category: "fundamental_analysis",
+      xp_reward: 160,
+      order_index: 16,
+      is_unlocked_by_default: false,
+      content: {
+        sections: [
+          {
+            type: "concept",
+            title: "Understanding Price vs. Value",
+            body: [
+              "Price is simply what the market is currently willing to pay for a share.",
+              "Value (often called intrinsic value) is what the business is actually worth based on earnings power, assets, and future potential.",
+              "",
+              "A share can be:",
+              "• **Undervalued** → Market price below intrinsic value → possible buy.",
+              "• **Overvalued** → Market price above intrinsic value → caution or sell.",
+              "",
+              "Warren Buffett’s rule: *“Price is what you pay; value is what you get.”*",
+              "Short-term price = opinion; long-term value = fundamentals.",
+            ].join("\n"),
+          },
+          {
+            type: "example",
+            title: "Real-Life Example",
+            body: [
+              "Suppose Company A’s true worth (based on earnings) is ₹500 per share, but it’s trading at ₹400.",
+              "It’s likely **undervalued** — the market hasn’t fully recognized its strength.",
+              "Conversely, a fashionable stock trading at ₹1,000 with weak profits may be **overvalued**.",
+            ].join("\n"),
+          },
+          {
+            type: "quiz",
+            title: "Quiz: Price vs. Value",
+            questions: [
+              {
+                id: "q1",
+                format: "mcq",
+                prompt:
+                  "If a company’s intrinsic value is ₹600 and its market price is ₹450, the stock is:",
+                options: ["Overvalued", "Undervalued", "Fairly valued"],
+                answer: 1,
+                solution_explanation:
+                  "Market < Intrinsic ⇒ Undervalued → potentially a buying opportunity.",
+              },
+              {
+                id: "q2",
+                format: "input",
+                inputType: "number",
+                prompt:
+                  "A stock’s intrinsic value ₹900, current price ₹1,200. How much % overvalued is it? (round to nearest 10%)",
+                answer: 33,
+                solution_explanation:
+                  "Overvalued % = (1,200 − 900) / 900 × 100 ≈ 33 %.",
+              },
+              {
+                id: "q3",
+                format: "mixed",
+                prompt: "Which best explains why prices differ from value?",
+                options: [
+                  "Investor emotions and market sentiment",
+                  "Companies miscalculate profits",
+                  "Accounting rules change daily",
+                ],
+                answer: 0,
+                solution_explanation:
+                  "Markets swing on emotions (short term) while value changes slowly with performance.",
+              },
+            ],
+          },
+        ],
+      },
+    },
+    {
+      title: "Valuation Multiples (P/E, P/B, EV/EBITDA)",
+      description:
+        "Use common ratios to compare price to earnings, book value, and operating profits.",
+      category: "fundamental_analysis",
+      xp_reward: 170,
+      order_index: 17,
+      is_unlocked_by_default: false,
+      content: {
+        sections: [
+          {
+            type: "concept",
+            title: "Key Valuation Multiples Explained",
+            body: [
+              "**1. Price-to-Earnings (P/E)** = Share Price ÷ Earnings per Share (EPS)",
+              " • Shows how much investors pay for ₹1 of earnings.",
+              " • High P/E → growth expectations; Low P/E → cheap or risky.",
+              "",
+              "**2. Price-to-Book (P/B)** = Share Price ÷ Book Value per Share",
+              " • Book Value ≈ Net assets (assets − liabilities).",
+              " • Useful for asset-heavy businesses like banks.",
+              "",
+              "**3. Enterprise Value to EBITDA (EV/EBITDA)** = ( Market Cap + Debt − Cash ) ÷ EBITDA",
+              " • Compares total business value to operating profit.",
+              " • Preferred when companies have different debt levels.",
+            ].join("\n"),
+          },
+          {
+            type: "example",
+            title: "Example: Comparing Two Companies",
+            body: [
+              "Company X: Price ₹200, EPS ₹10 → P/E = 20×.",
+              "Company Y: Price ₹150, EPS ₹10 → P/E = 15× → cheaper per earnings.",
+              "A bank trading at P/B = 1.0 is valued at its book value — reasonable if assets are sound.",
+            ].join("\n"),
+          },
+          {
+            type: "quiz",
+            title: "Quiz: Valuation Multiples",
+            questions: [
+              {
+                id: "q1",
+                format: "mcq",
+                prompt:
+                  "Which multiple best compares companies with different debt levels?",
+                options: ["P/E", "P/B", "EV/EBITDA"],
+                answer: 2,
+                solution_explanation:
+                  "EV/EBITDA includes debt and cash, so it works better for comparing leveraged companies.",
+              },
+              {
+                id: "q2",
+                format: "input",
+                inputType: "number",
+                prompt: "Share Price ₹240, EPS ₹12. Find P/E.",
+                answer: 20,
+                solution_explanation: "P/E = 240 ÷ 12 = 20×.",
+              },
+              {
+                id: "q3",
+                format: "mixed",
+                prompt: "A low P/B (< 1) can indicate what?",
+                options: [
+                  "The stock may be undervalued or assets are weak",
+                  "High future growth",
+                  "Strong brand premium",
+                ],
+                answer: 0,
+                solution_explanation:
+                  "P/B below 1 means market values company below its net assets — could signal cheap or troubled business.",
+              },
+            ],
+          },
+        ],
+      },
+    },
+    {
+      title: "Discounted Cash Flow (DCF) Basics",
+      description:
+        "Estimate intrinsic value by projecting future cash flows and discounting them to today.",
+      category: "fundamental_analysis",
+      xp_reward: 180,
+      order_index: 18,
+      is_unlocked_by_default: false,
+      content: {
+        sections: [
+          {
+            type: "concept",
+            title: "Understanding DCF",
+            body: [
+              "DCF (Discounted Cash Flow) values a company based on expected future cash flows brought to present value.",
+              "",
+              "**Steps:**",
+              "1. Estimate future Free Cash Flows (FCF) for 5–10 years.",
+              "2. Choose a discount rate (usually the required rate of return or WACC).",
+              "3. Discount each year’s FCF to present value using PV = FCF ÷ (1 + r)^n.",
+              "4. Add up all PV + Terminal Value → Intrinsic Value.",
+              "",
+              "If this value > market price → stock may be undervalued.",
+            ].join("\n"),
+          },
+          {
+            type: "example",
+            title: "Simple DCF Illustration",
+            body: [
+              "Company projects FCF ₹100 cr per year for 5 years.",
+              "Discount rate = 10%. PV ≈ ₹379 cr.",
+              "Add terminal value ₹600 cr → Total ≈ ₹979 cr ≈ company’s intrinsic value.",
+            ].join("\n"),
+          },
+          {
+            type: "quiz",
+            title: "Quiz: DCF Basics",
+            questions: [
+              {
+                id: "q1",
+                format: "mcq",
+                prompt: "The DCF method values a company based on what?",
+                options: [
+                  "Past profits",
+                  "Future cash flows discounted to present value",
+                  "Market trends and sentiment",
+                ],
+                answer: 1,
+                solution_explanation:
+                  "DCF focuses on expected future cash generation and time value of money.",
+              },
+              {
+                id: "q2",
+                format: "input",
+                inputType: "number",
+                prompt:
+                  "If next year FCF = ₹110 cr, discount rate 10%. Find PV (₹ cr). (round to 1 decimal)",
+                answer: 100,
+                solution_explanation: "PV = 110 ÷ 1.10 = ₹100 cr (approx).",
+              },
+              {
+                id: "q3",
+                format: "mixed",
+                prompt: "Higher discount rate does what to present value?",
+                options: ["Increases PV", "Decreases PV", "No effect"],
+                answer: 1,
+                solution_explanation:
+                  "Higher required return reduces the present value of future cash flows.",
+              },
+            ],
+          },
+        ],
+      },
+    },
+    {
+      title: "Relative vs. Absolute Valuation",
+      description: "Understand the two main approaches to valuing a company.",
+      category: "fundamental_analysis",
+      xp_reward: 190,
+      order_index: 19,
+      is_unlocked_by_default: false,
+      content: {
+        sections: [
+          {
+            type: "concept",
+            title: "Two Valuation Approaches",
+            body: [
+              "**Relative Valuation:**",
+              " • Compares a company to peers using multiples (P/E, P/B, EV/EBITDA).",
+              " • Fast and useful for market comparison.",
+              "",
+              "**Absolute Valuation:**",
+              " • Finds intrinsic value using DCF or asset-based methods.",
+              " • Independent of market prices.",
+              "",
+              "**Example:** A stock with P/E of 15 vs industry 20 may look cheap (relatively), but if its cash flows are weak, absolute valuation might show it’s fairly priced.",
+            ].join("\n"),
+          },
+          {
+            type: "example",
+            title: "Real-Life Comparison",
+            body: [
+              "Infosys vs TCS: Both IT giants operate similarly.",
+              "• Relative: Compare P/E ratios (Infosys 25×, TCS 30×).",
+              "• Absolute: Run DCF for each based on cash flows to estimate true worth.",
+            ].join("\n"),
+          },
+          {
+            type: "quiz",
+            title: "Quiz: Valuation Approaches",
+            questions: [
+              {
+                id: "q1",
+                format: "mcq",
+                prompt: "Relative valuation compares a company to what?",
+                options: [
+                  "Its own past profits",
+                  "Peer companies using ratios",
+                  "Government bonds",
+                ],
+                answer: 1,
+                solution_explanation:
+                  "Relative valuation benchmarks against similar firms via P/E, P/B etc.",
+              },
+              {
+                id: "q2",
+                format: "input",
+                inputType: "text",
+                prompt: "Name one method used in absolute valuation.",
+                answer: "discounted cash flow",
+                solution_explanation:
+                  "Absolute valuation includes DCF and asset-based approaches.",
+              },
+              {
+                id: "q3",
+                format: "mixed",
+                prompt: "Which is faster but more market-dependent?",
+                options: [
+                  "Relative valuation",
+                  "Absolute valuation",
+                  "Both same speed",
+                ],
+                answer: 0,
+                solution_explanation:
+                  "Relative uses market multiples → quick but moves with market sentiment.",
+              },
+            ],
+          },
+        ],
+      },
+    },
+    {
+      title: "Management Quality & Corporate Governance",
+      description:
+        "Learn how strong leadership and transparent governance drive sustainable growth.",
+      category: "fundamental_analysis",
+      xp_reward: 200,
+      order_index: 20,
+      is_unlocked_by_default: false,
+      content: {
+        sections: [
+          {
+            type: "concept",
+            title: "Why Management & Governance Matter",
+            body: [
+              "Even profitable businesses can fail if leadership is weak or unethical.",
+              "Good management makes strategic decisions, allocates capital wisely, and maintains integrity.",
+              "",
+              "**Key points:**",
+              "• **Management Quality** → leadership vision, experience, and decision-making consistency.",
+              "• **Corporate Governance** → rules and systems ensuring accountability and fairness.",
+              "• Transparent reporting, independent boards, and ethical practices protect shareholders.",
+              "",
+              "Strong governance builds trust; poor governance often leads to fraud or scandals.",
+            ].join("\n"),
+          },
+          {
+            type: "example",
+            title: "Real-Life Example",
+            body: [
+              "Infosys has long been respected for its transparent accounting and ethical culture — investors trust its leadership.",
+              "In contrast, companies involved in financial scandals (like Satyam in 2009) show how poor governance can destroy value overnight.",
+            ].join("\n"),
+          },
+          {
+            type: "quiz",
+            title: "Quiz: Management & Governance",
+            questions: [
+              {
+                id: "q1",
+                format: "mcq",
+                prompt: "Which of these signals strong corporate governance?",
+                options: [
+                  "Frequent accounting restatements",
+                  "Transparent disclosures and independent board",
+                  "Hidden related-party transactions",
+                ],
+                answer: 1,
+                solution_explanation:
+                  "Good governance relies on transparency and independence to protect investors.",
+              },
+              {
+                id: "q2",
+                format: "input",
+                inputType: "text",
+                prompt:
+                  "Fill in: Good management focuses on creating long-term ______ for shareholders.",
+                answer: "value",
+                solution_explanation:
+                  "Strong leaders prioritize sustainable value creation, not short-term stock moves.",
+              },
+              {
+                id: "q3",
+                format: "mixed",
+                prompt:
+                  "Why is corporate governance especially critical for listed companies?",
+                options: [
+                  "Because retail investors can directly run the business",
+                  "Because public shareholders rely on management transparency",
+                  "Because auditors handle all management duties",
+                ],
+                answer: 1,
+                solution_explanation:
+                  "Public investors cannot oversee daily operations, so they depend on honest, transparent governance.",
+              },
+            ],
+          },
+        ],
+      },
+    },
+    {
+      title: "Brand Value & Moat Deep Dive",
+      description:
+        "Understand how strong brands and durable advantages protect profits over time.",
+      category: "fundamental_analysis",
+      xp_reward: 210,
+      order_index: 21,
+      is_unlocked_by_default: false,
+      content: {
+        sections: [
+          {
+            type: "concept",
+            title: "What Builds Brand Value and Moats",
+            body: [
+              "A brand is more than a logo — it’s the trust customers place in a company.",
+              "Brands with high recall and loyalty can charge premium prices and face less competition.",
+              "",
+              "**Types of Moats:**",
+              "• **Brand Moat:** Consumer preference due to reputation (Apple, HUL).",
+              "• **Cost Moat:** Lowest production or delivery costs (D-Mart).",
+              "• **Network Moat:** More users → more value (Amazon, Flipkart).",
+              "• **Switching-Cost Moat:** Hard for users to leave (Microsoft Office).",
+            ].join("\n"),
+          },
+          {
+            type: "example",
+            title: "Real-Life Example",
+            body: [
+              "Apple customers stay loyal because of product quality and ecosystem integration.",
+              "In India, HUL’s Dove and Surf Excel maintain dominance through consistent brand trust built over decades.",
+            ].join("\n"),
+          },
+          {
+            type: "quiz",
+            title: "Quiz: Brand & Moats",
+            questions: [
+              {
+                id: "q1",
+                format: "mcq",
+                prompt: "A 'network moat' usually means:",
+                options: [
+                  "The company owns many factories",
+                  "The product becomes more valuable as more people use it",
+                  "The company avoids using debt",
+                ],
+                answer: 1,
+                solution_explanation:
+                  "In a network moat, each new user adds value for others, strengthening dominance.",
+              },
+              {
+                id: "q2",
+                format: "input",
+                inputType: "text",
+                prompt:
+                  "Name one Indian company known for strong brand loyalty.",
+                answer: "Hindustan Unilever",
+                solution_explanation:
+                  "HUL has iconic household brands trusted for quality and consistency.",
+              },
+              {
+                id: "q3",
+                format: "mixed",
+                prompt:
+                  "Why does a strong brand often allow higher profit margins?",
+                options: [
+                  "Because it reduces raw-material costs",
+                  "Because loyal customers pay premium prices",
+                  "Because it avoids taxes",
+                ],
+                answer: 1,
+                solution_explanation:
+                  "Brand trust allows premium pricing and repeat purchases, boosting margins.",
+              },
+            ],
+          },
+        ],
+      },
+    },
+    {
+      title: "Regulatory and Macro Factors",
+      description:
+        "See how government policy and the wider economy shape business performance.",
+      category: "fundamental_analysis",
+      xp_reward: 220,
+      order_index: 22,
+      is_unlocked_by_default: false,
+      content: {
+        sections: [
+          {
+            type: "concept",
+            title: "Understanding External Influences",
+            body: [
+              "Companies don’t operate in isolation — regulation and macroeconomics can change outcomes dramatically.",
+              "",
+              "**Regulatory Factors:**",
+              "• Taxes, import/export rules, labor laws, environmental standards.",
+              "• Sudden regulation shifts can help or hurt profits.",
+              "",
+              "**Macro Factors:**",
+              "• GDP growth, inflation, interest rates, currency strength.",
+              "• High interest rates can raise borrowing costs; inflation erodes margins; strong GDP growth boosts demand.",
+            ].join("\n"),
+          },
+          {
+            type: "example",
+            title: "Real-Life Example",
+            body: [
+              "In 2016, India’s demonetization impacted cash-based businesses but boosted digital payment firms like Paytm.",
+              "Recently, EV subsidies supported the electric-vehicle industry’s rapid growth.",
+            ].join("\n"),
+          },
+          {
+            type: "quiz",
+            title: "Quiz: Regulatory & Macro Factors",
+            questions: [
+              {
+                id: "q1",
+                format: "mcq",
+                prompt:
+                  "An increase in interest rates generally makes borrowing:",
+                options: ["Cheaper", "Costlier", "Unchanged"],
+                answer: 1,
+                solution_explanation:
+                  "Higher rates raise loan costs and can reduce company expansion plans.",
+              },
+              {
+                id: "q2",
+                format: "input",
+                inputType: "text",
+                prompt:
+                  "Name one government action that can positively affect renewable-energy companies.",
+                answer: "subsidy",
+                solution_explanation:
+                  "Subsidies or tax incentives encourage renewable-energy investment.",
+              },
+              {
+                id: "q3",
+                format: "mixed",
+                prompt:
+                  "If inflation rises sharply, how might that affect most companies?",
+                options: [
+                  "Input costs increase and margins may shrink",
+                  "Revenues automatically rise faster than costs",
+                  "It has no effect on business",
+                ],
+                answer: 0,
+                solution_explanation:
+                  "Higher inflation raises input prices, squeezing profits unless companies can pass on costs.",
+              },
+            ],
+          },
+        ],
+      },
+    },
+    {
+      title: "Red Flags (Fraud, Aggressive Accounting, Poor Governance)",
+      description:
+        "Spot warning signs that indicate risk or unethical practices in a company.",
+      category: "fundamental_analysis",
+      xp_reward: 230,
+      order_index: 23,
+      is_unlocked_by_default: false,
+      content: {
+        sections: [
+          {
+            type: "concept",
+            title: "Recognizing Red Flags",
+            body: [
+              "Red flags are signals that a company’s reported numbers or behavior might be misleading.",
+              "",
+              "**Common Red Flags:**",
+              "1. **Frequent restatements** of financial results.",
+              "2. **Unusually high receivables** compared to sales (possible fake revenues).",
+              "3. **Rapidly rising debt** without clear reason.",
+              "4. **Management changing auditors** often or giving vague disclosures.",
+              "5. **Aggressive accounting** — booking income early or delaying expenses.",
+              "6. **Insider selling** — promoters reducing stake before bad news.",
+            ].join("\n"),
+          },
+          {
+            type: "example",
+            title: "Real-Life Example",
+            body: [
+              "Satyam Computers (2009) inflated profits for years before admitting fraud — wiping out investor wealth.",
+              "Learning to detect these red flags helps investors exit before trouble surfaces.",
+            ].join("\n"),
+          },
+          {
+            type: "quiz",
+            title: "Quiz: Red Flags",
+            questions: [
+              {
+                id: "q1",
+                format: "mcq",
+                prompt:
+                  "A sudden jump in receivables while sales stay flat may mean:",
+                options: [
+                  "Customers are paying faster",
+                  "Revenue may be overstated",
+                  "Company reduced prices",
+                ],
+                answer: 1,
+                solution_explanation:
+                  "Rising receivables without matching sales often indicate fake or delayed collections.",
+              },
+              {
+                id: "q2",
+                format: "input",
+                inputType: "text",
+                prompt:
+                  "Name one behavior that might signal poor corporate governance.",
+                answer: "frequent auditor changes",
+                solution_explanation:
+                  "Changing auditors repeatedly may hide financial irregularities.",
+              },
+              {
+                id: "q3",
+                format: "mixed",
+                prompt: "Why are red flags important for investors to monitor?",
+                options: [
+                  "They guarantee higher returns",
+                  "They help detect potential frauds early",
+                  "They show good brand value",
+                ],
+                answer: 1,
+                solution_explanation:
+                  "Spotting red flags helps investors avoid risky or dishonest companies before losses occur.",
+              },
+            ],
+          },
+        ],
+      },
+    },
+    {
+      title: "Economic Indicators (GDP, Inflation, Interest Rates)",
+      description:
+        "Learn how key economic indicators affect businesses and stock performance.",
+      category: "fundamental_analysis",
+      xp_reward: 240,
+      order_index: 24,
+      is_unlocked_by_default: false,
+      content: {
+        sections: [
+          {
+            type: "concept",
+            title: "Understanding Economic Indicators",
+            body: [
+              "Economic indicators show the health and direction of a country’s economy.",
+              "They influence company performance, investor confidence, and stock prices.",
+              "",
+              "**Main Indicators:**",
+              "• **GDP (Gross Domestic Product):** Total value of goods and services produced. High GDP growth → strong economy → higher corporate earnings.",
+              "• **Inflation:** Measures how fast prices of goods and services are rising. Moderate inflation (2–5%) is healthy; too high reduces purchasing power.",
+              "• **Interest Rates:** Set by central banks (e.g., RBI). Higher rates make loans expensive, slowing spending and growth; lower rates boost borrowing and investment.",
+            ].join("\n"),
+          },
+          {
+            type: "example",
+            title: "Real-Life Example",
+            body: [
+              "When India’s GDP growth hit 8%, sectors like banking and consumer goods thrived due to rising demand.",
+              "Conversely, in 2020 when rates were cut to historic lows, borrowing became cheaper — boosting housing and auto sales.",
+            ].join("\n"),
+          },
+          {
+            type: "quiz",
+            title: "Quiz: Economic Indicators",
+            questions: [
+              {
+                id: "q1",
+                format: "mcq",
+                prompt:
+                  "High interest rates usually have what effect on company borrowing?",
+                options: [
+                  "Make borrowing cheaper",
+                  "Make borrowing more expensive",
+                  "No effect",
+                ],
+                answer: 1,
+                solution_explanation:
+                  "Higher rates increase loan costs, reducing borrowing and expansion.",
+              },
+              {
+                id: "q2",
+                format: "input",
+                inputType: "text",
+                prompt:
+                  "If inflation rises sharply, people’s purchasing power generally ______.",
+                answer: "decreases",
+                solution_explanation:
+                  "When prices rise faster than income, purchasing power falls.",
+              },
+              {
+                id: "q3",
+                format: "mixed",
+                prompt:
+                  "If GDP grows steadily year after year, what does it usually indicate?",
+                options: [
+                  "Economic expansion and rising corporate profits",
+                  "High unemployment",
+                  "Falling consumer spending",
+                ],
+                answer: 0,
+                solution_explanation:
+                  "Steady GDP growth indicates a healthy economy and potential profit growth.",
+              },
+            ],
+          },
+        ],
+      },
+    },
+    {
+      title: "Cyclical vs. Defensive Sectors",
+      description:
+        "Differentiate between industries that rise and fall with the economy and those that stay steady.",
+      category: "fundamental_analysis",
+      xp_reward: 250,
+      order_index: 25,
+      is_unlocked_by_default: false,
+      content: {
+        sections: [
+          {
+            type: "concept",
+            title: "Understanding Sector Types",
+            body: [
+              "Industries react differently to economic cycles.",
+              "",
+              "**Cyclical Sectors:**",
+              "• Their performance depends heavily on economic growth.",
+              "• Examples: Automobiles, Real Estate, Hotels, Metals.",
+              "• Sales rise in booms and drop in slowdowns.",
+              "",
+              "**Defensive Sectors:**",
+              "• Demand stays stable regardless of the economy.",
+              "• Examples: FMCG, Healthcare, Utilities.",
+              "• People still buy essentials and medicines even during recessions.",
+            ].join("\n"),
+          },
+          {
+            type: "example",
+            title: "Real-Life Example",
+            body: [
+              "During the 2020 pandemic slowdown, FMCG firms like HUL and ITC performed steadily (defensive).",
+              "In contrast, auto and real estate sales fell sharply (cyclical).",
+            ].join("\n"),
+          },
+          {
+            type: "quiz",
+            title: "Quiz: Sector Cyclicality",
+            questions: [
+              {
+                id: "q1",
+                format: "mcq",
+                prompt: "Which of the following is a defensive sector?",
+                options: ["Automobiles", "Hotels", "FMCG"],
+                answer: 2,
+                solution_explanation:
+                  "FMCG demand is steady — even in recessions people buy everyday goods.",
+              },
+              {
+                id: "q2",
+                format: "input",
+                inputType: "text",
+                prompt: "Name one example of a cyclical sector.",
+                answer: "automobile",
+                solution_explanation:
+                  "Auto sales rise in good times and fall during economic slowdowns.",
+              },
+              {
+                id: "q3",
+                format: "mixed",
+                prompt:
+                  "If the economy enters a downturn, which sector tends to hold up better?",
+                options: [
+                  "Cyclical sectors",
+                  "Defensive sectors",
+                  "Commodity sectors",
+                ],
+                answer: 1,
+                solution_explanation:
+                  "Defensive sectors like healthcare or FMCG maintain stable demand.",
+              },
+            ],
+          },
+        ],
+      },
+    },
+    {
+      title: "Impact of Global Events (Oil, Trade Wars, Rates)",
+      description:
+        "Understand how international events ripple through markets and industries.",
+      category: "fundamental_analysis",
+      xp_reward: 260,
+      order_index: 26,
+      is_unlocked_by_default: false,
+      content: {
+        sections: [
+          {
+            type: "concept",
+            title: "Global Events and Their Influence",
+            body: [
+              "In a globalized world, events abroad can affect local markets too.",
+              "",
+              "**Common Global Influences:**",
+              "• **Oil Prices:** High oil prices raise transport and manufacturing costs; good for oil producers, bad for airlines and logistics.",
+              "• **Trade Wars:** Tariffs between nations increase input costs, hurt exporters, and slow global trade.",
+              "• **Interest Rate Moves by the US Federal Reserve:** Higher US rates attract global capital to the US, weakening emerging-market currencies.",
+              "",
+              "Investors must track these global signals as they can move stock prices even without company-specific news.",
+            ].join("\n"),
+          },
+          {
+            type: "example",
+            title: "Real-Life Example",
+            body: [
+              "When oil prices rose above $100 in 2022, airline companies saw profits fall, while energy firms gained.",
+              "During the US-China trade war, many Indian exporters benefited as global buyers diversified supply chains.",
+            ].join("\n"),
+          },
+          {
+            type: "quiz",
+            title: "Quiz: Global Impacts",
+            questions: [
+              {
+                id: "q1",
+                format: "mcq",
+                prompt:
+                  "High crude oil prices usually hurt which industry the most?",
+                options: ["Oil exploration", "Airlines", "Energy producers"],
+                answer: 1,
+                solution_explanation:
+                  "Airlines’ fuel costs rise sharply when crude prices increase, reducing profits.",
+              },
+              {
+                id: "q2",
+                format: "input",
+                inputType: "text",
+                prompt:
+                  "If the US Federal Reserve raises interest rates, what typically happens to emerging market currencies?",
+                answer: "they weaken",
+                solution_explanation:
+                  "Capital flows toward higher US returns, reducing demand for emerging currencies.",
+              },
+              {
+                id: "q3",
+                format: "mixed",
+                prompt: "A trade war between two major economies can lead to:",
+                options: [
+                  "Lower global trade and higher tariffs",
+                  "Increased exports everywhere",
+                  "Stable international relations",
+                ],
+                answer: 0,
+                solution_explanation:
+                  "Trade wars disrupt supply chains, reducing international trade.",
+              },
+            ],
+          },
+        ],
+      },
+    },
+    {
+      title: "The Investment Checklist",
+      description:
+        "Learn how to systematically evaluate a company before investing.",
+      category: "fundamental_analysis",
+      xp_reward: 270,
+      order_index: 27,
+      is_unlocked_by_default: false,
+      content: {
+        sections: [
+          {
+            type: "concept",
+            title: "Building an Investment Checklist",
+            body: [
+              "Before investing, it’s crucial to analyze a company from multiple angles — financial, qualitative, and macro.",
+              "",
+              "**Key items in a good checklist:**",
+              "1. **Business Model:** Do you understand how the company earns money?",
+              "2. **Industry Position:** Is it a market leader or a small player?",
+              "3. **Financial Health:** Check profitability, debt, and cash flow trends.",
+              "4. **Valuation:** Is the stock priced below its intrinsic value?",
+              "5. **Management Quality:** Is leadership transparent and consistent?",
+              "6. **Growth Drivers:** Are there future catalysts (new products, markets)?",
+              "7. **Risks:** What could go wrong (competition, regulation, disruption)?",
+              "",
+              "A structured checklist reduces emotional decisions and helps you stay objective.",
+            ].join("\n"),
+          },
+          {
+            type: "example",
+            title: "Example: Applying a Checklist to HDFC Bank",
+            body: [
+              "• Business Model: Retail & corporate banking – stable and proven.",
+              "• Financials: Consistent ROE ~17–18%, strong profits.",
+              "• Valuation: Reasonable P/E compared to peers.",
+              "• Management: Known for disciplined lending and transparency.",
+              "→ Verdict: Fits long-term quality investment profile.",
+            ].join("\n"),
+          },
+          {
+            type: "quiz",
+            title: "Quiz: Investment Checklist",
+            questions: [
+              {
+                id: "q1",
+                format: "mcq",
+                prompt:
+                  "Which of the following is NOT part of a good investment checklist?",
+                options: [
+                  "Understanding how the company earns money",
+                  "Checking management integrity",
+                  "Predicting exact daily stock prices",
+                ],
+                answer: 2,
+                solution_explanation:
+                  "No one can consistently predict daily stock prices — investing focuses on fundamentals.",
+              },
+              {
+                id: "q2",
+                format: "input",
+                inputType: "text",
+                prompt:
+                  "Fill in: A checklist helps reduce ______ decisions and maintain discipline.",
+                answer: "emotional",
+                solution_explanation:
+                  "It prevents emotional biases like fear or greed from driving decisions.",
+              },
+              {
+                id: "q3",
+                format: "mixed",
+                prompt:
+                  "Which of these checklist points directly tests financial strength?",
+                options: [
+                  "Debt-to-Equity and Cash Flow Analysis",
+                  "Management Reputation",
+                  "Customer Reviews",
+                ],
+                answer: 0,
+                solution_explanation:
+                  "Financial ratios like D/E and cash flow show how stable a company is financially.",
+              },
+            ],
+          },
+        ],
+      },
+    },
+    {
+      title: "Case Study: Analyzing Apple, Tesla, or a Local Company",
+      description:
+        "See how fundamental analysis works step-by-step on a real business.",
+      category: "fundamental_analysis",
+      xp_reward: 280,
+      order_index: 28,
+      is_unlocked_by_default: false,
+      content: {
+        sections: [
+          {
+            type: "concept",
+            title: "Conducting a Case Study",
+            body: [
+              "The best way to learn investing is to apply the framework to a real company.",
+              "We’ll use Apple as an example — you can do the same for any Indian stock like Infosys, TCS, or Maruti.",
+              "",
+              "**Steps to Analyze:**",
+              "1. **Business Understanding:** Apple sells hardware + services (iPhone, Mac, iCloud).",
+              "2. **Financials:** Revenue and profit growth have been steady; strong cash flows.",
+              "3. **Moat:** Brand loyalty + ecosystem lock-in.",
+              "4. **Valuation:** P/E ~25–30×; justified by growth & profitability.",
+              "5. **Risks:** Supply-chain dependency, regulation, global competition.",
+            ].join("\n"),
+          },
+          {
+            type: "example",
+            title: "Real-Life Exercise: Apply This Yourself",
+            body: [
+              "Pick one company you know — for example, Titan, Zomato, or Asian Paints.",
+              "• Read its annual report (financials + management discussion).",
+              "• Identify revenue growth, debt, margins, and cash flow trends.",
+              "• Check P/E vs peers and note qualitative strengths like brand or customer trust.",
+            ].join("\n"),
+          },
+          {
+            type: "quiz",
+            title: "Quiz: Case Study Application",
+            questions: [
+              {
+                id: "q1",
+                format: "mcq",
+                prompt: "Apple’s main moat comes from which factor?",
+                options: [
+                  "Commodity pricing",
+                  "Strong ecosystem and brand loyalty",
+                  "Dependence on one product only",
+                ],
+                answer: 1,
+                solution_explanation:
+                  "Apple’s ecosystem (hardware + software + services) builds deep customer loyalty.",
+              },
+              {
+                id: "q2",
+                format: "input",
+                inputType: "text",
+                prompt:
+                  "Name one risk that even a great company like Apple faces.",
+                answer: "supply chain disruption",
+                solution_explanation:
+                  "Even strong firms face risks from external events like supply shortages or regulations.",
+              },
+              {
+                id: "q3",
+                format: "mixed",
+                prompt:
+                  "If an investor finds a company with strong moat, rising profits, and fair valuation, the likely action is:",
+                options: [
+                  "Consider it for long-term investment",
+                  "Avoid it completely",
+                  "Short-sell it",
+                ],
+                answer: 0,
+                solution_explanation:
+                  "Strong fundamentals and fair value make it a potential long-term investment.",
+              },
+            ],
+          },
+        ],
+      },
+    },
+    {
+      title: "Margin of Safety",
+      description:
+        "Understand how buying below intrinsic value reduces investment risk.",
+      category: "fundamental_analysis",
+      xp_reward: 290,
+      order_index: 29,
+      is_unlocked_by_default: false,
+      content: {
+        sections: [
+          {
+            type: "concept",
+            title: "What Is Margin of Safety?",
+            body: [
+              "Coined by Benjamin Graham, the margin of safety means buying a stock significantly below its estimated intrinsic value.",
+              "",
+              "**Why it matters:**",
+              "• It provides a cushion against analysis errors or unforeseen events.",
+              "• The bigger the margin, the safer the investment.",
+              "",
+              "**Formula:**",
+              "Margin of Safety (%) = (Intrinsic Value − Market Price) ÷ Intrinsic Value × 100.",
+              "",
+              "For example, if value = ₹500 and price = ₹400, Margin = (500−400)/500 = 20%.",
+            ].join("\n"),
+          },
+          {
+            type: "example",
+            title: "Real-Life Example",
+            body: [
+              "Investor finds a stock worth ₹1,000 (based on DCF) trading at ₹700.",
+              "Margin of Safety = (1,000−700)/1,000 = 30%.",
+              "Even if intrinsic value estimate is slightly off, the investor still has a buffer.",
+            ].join("\n"),
+          },
+          {
+            type: "quiz",
+            title: "Quiz: Margin of Safety",
+            questions: [
+              {
+                id: "q1",
+                format: "mcq",
+                prompt:
+                  "The concept of 'margin of safety' mainly helps investors:",
+                options: [
+                  "Take more risk",
+                  "Reduce downside risk and build protection",
+                  "Speculate on price moves",
+                ],
+                answer: 1,
+                solution_explanation:
+                  "Buying below true value creates a cushion against potential mistakes.",
+              },
+              {
+                id: "q2",
+                format: "input",
+                inputType: "number",
+                prompt:
+                  "Intrinsic Value ₹600, Market Price ₹480. Find Margin of Safety (%).",
+                answer: 20,
+                solution_explanation: "Margin = (600−480)/600×100 = 20%.",
+              },
+              {
+                id: "q3",
+                format: "mixed",
+                prompt:
+                  "If an investor pays exactly the intrinsic value of a stock, what is the margin of safety?",
+                options: ["Zero", "Ten percent", "Infinite"],
+                answer: 0,
+                solution_explanation:
+                  "Paying intrinsic value means no margin of safety — no cushion for error.",
+              },
+            ],
+          },
+        ],
+      },
+    },
+    {
+      title: "Building a Watchlist & Tracking Investments",
+      description:
+        "Learn how to monitor stocks and stay disciplined after investing.",
+      category: "fundamental_analysis",
+      xp_reward: 300,
+      order_index: 30,
+      is_unlocked_by_default: false,
+      content: {
+        sections: [
+          {
+            type: "concept",
+            title: "Creating and Managing a Watchlist",
+            body: [
+              "A watchlist helps investors stay ready for opportunities without impulsive buying.",
+              "",
+              "**How to Build It:**",
+              "• Identify quality companies you understand.",
+              "• Record key metrics: P/E, ROE, Debt, Cash Flow, Intrinsic Value.",
+              "• Set a 'target buy price' — often below fair value for a margin of safety.",
+              "",
+              "**Tracking Investments:**",
+              "• Review quarterly results and annual reports.",
+              "• Track management commentary and new developments.",
+              "• Avoid reacting to short-term volatility — focus on fundamentals.",
+            ].join("\n"),
+          },
+          {
+            type: "example",
+            title: "Example: Personal Watchlist",
+            body: [
+              "An investor tracks 5 companies: HDFC Bank, Infosys, Titan, Maruti, and NTPC.",
+              "They note valuations, growth rates, and keep alerts when any trade below fair price.",
+              "This disciplined approach prevents FOMO and ensures buying quality at value.",
+            ].join("\n"),
+          },
+          {
+            type: "quiz",
+            title: "Quiz: Watchlist & Tracking",
+            questions: [
+              {
+                id: "q1",
+                format: "mcq",
+                prompt: "Why maintain a stock watchlist?",
+                options: [
+                  "To chase every market rally",
+                  "To monitor good companies and buy at the right price",
+                  "To avoid fundamental analysis",
+                ],
+                answer: 1,
+                solution_explanation:
+                  "A watchlist keeps investors patient and ready for value opportunities.",
+              },
+              {
+                id: "q2",
+                format: "input",
+                inputType: "text",
+                prompt:
+                  "Fill in: Long-term investors should focus on company ______, not short-term price movements.",
+                answer: "fundamentals",
+                solution_explanation:
+                  "Focusing on fundamentals ensures you invest based on business performance, not emotion.",
+              },
+              {
+                id: "q3",
+                format: "mixed",
+                prompt:
+                  "After buying a stock, how often should you ideally review its performance?",
+                options: [
+                  "Every few hours",
+                  "Quarterly or after major announcements",
+                  "Never review again",
+                ],
+                answer: 1,
+                solution_explanation:
+                  "Quarterly tracking helps stay updated without emotional overtrading.",
+              },
+            ],
+          },
+        ],
+      },
+    },
+  ];
+
+  // Check existing lessons by title
+  const titles = lessonsToSeed.map(l => l.title);
+  // Use admin client to bypass RLS for seed operations
+  const { data: existing, error: existingError } = await supabaseAdmin
+    .from('lessons')
+    .select('id, title');
+
+  if (existingError) {
+    console.error('Seed check error:', existingError);
+    return sendError(res, 'Failed to check existing lessons', 500);
+  }
+
+  const existingTitles = new Set((existing || []).map(l => l.title));
+  const toInsert = lessonsToSeed.filter(l => !existingTitles.has(l.title));
+
+  if (toInsert.length === 0) {
+    return sendSuccess(res, 'Lessons already seeded', { inserted: 0, total: existing?.length || 0 });
+  }
+
+  const { data: inserted, error: insertError } = await supabaseAdmin
+    .from('lessons')
+    .insert(toInsert)
+    .select('id, title, order_index');
+
+  if (insertError) {
+    console.error('Seed insert error:', insertError);
+    return sendError(res, 'Failed to seed lessons', 500);
+  }
+
+  sendSuccess(res, 'Lessons seeded successfully', { inserted: inserted?.length || 0 });
+});
 
 /**
  * Get all lessons with user progress
@@ -22,6 +2317,7 @@ export const getAllLessons = asyncHandler(async (req, res) => {
       xp_reward,
       order_index,
       is_unlocked_by_default,
+      content,
       created_at
     `)
     .order('order_index', { ascending: true });
@@ -92,6 +2388,7 @@ export const getAllLessons = asyncHandler(async (req, res) => {
       }
     }
 
+    // Return chunked content metadata to support step-by-step UI without overloading
     return {
       id: lesson.id,
       title: lesson.title,
@@ -99,6 +2396,7 @@ export const getAllLessons = asyncHandler(async (req, res) => {
       category: lesson.category,
       xpReward: lesson.xp_reward,
       orderIndex: lesson.order_index,
+      content: lesson.content || null,
       isUnlocked,
       isCompleted,
       status: progress?.status || 'not_started',

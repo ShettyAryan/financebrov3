@@ -192,10 +192,19 @@ export const getUserProfile = asyncHandler(async (req, res) => {
     console.error('Progress fetch error:', progressError);
   }
 
-  // Calculate progress statistics
+  // Calculate progress statistics including accuracy rate
   const totalLessons = progressData?.length || 0;
   const completedLessons = progressData?.filter(p => p.status === 'completed').length || 0;
   const inProgressLessons = progressData?.filter(p => p.status === 'in_progress').length || 0;
+
+  // Accuracy rate as average score across completed lessons (0-100)
+  const completedWithScores = (progressData || []).filter(p => p.status === 'completed');
+  const accuracyRate = completedWithScores.length > 0
+    ? Math.round(
+        (completedWithScores.reduce((sum, p) => sum + (p.lessons?.xp_reward ? (p.score || 0) : (p.score || 0)), 0) /
+          completedWithScores.length)
+      )
+    : 0;
 
   // Get user's achievements
   const { data: achievements, error: achievementsError } = await supabase
@@ -223,7 +232,8 @@ export const getUserProfile = asyncHandler(async (req, res) => {
       totalLessons,
       completedLessons,
       inProgressLessons,
-      completionRate: totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0
+      completionRate: totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0,
+      accuracyRate
     },
     achievements: achievements || []
   });
@@ -354,5 +364,161 @@ export const updateUserStats = asyncHandler(async (req, res) => {
       streak: user.streak,
       updatedAt: user.updated_at
     }
+  });
+});
+
+/**
+ * Update user stats with deltas and optionally complete a lesson and unlock the next
+ * Request body: { xpDelta?, coinsDelta?, streakIncrement?, lessonId?, score? }
+ */
+export const updateStatsAndUnlock = asyncHandler(async (req, res) => {
+  const userId = req.user.id;
+  const { xpDelta = 0, coinsDelta = 0, streakIncrement = 0, lessonId, score } = req.body;
+
+  // Fetch current user
+  const { data: currentUser, error: userErr } = await supabase
+    .from('users')
+    .select('id, xp, coins, streak')
+    .eq('id', userId)
+    .single();
+
+  if (userErr || !currentUser) {
+    return sendError(res, 'Failed to load user', 500);
+  }
+
+  // Compute new values (non-negative guards)
+  const newXp = Math.max(0, (currentUser.xp || 0) + (typeof xpDelta === 'number' ? xpDelta : 0));
+  const newCoins = Math.max(0, (currentUser.coins || 0) + (typeof coinsDelta === 'number' ? coinsDelta : 0));
+  const newStreak = Math.max(0, (currentUser.streak || 0) + (typeof streakIncrement === 'number' ? streakIncrement : 0));
+
+  // Update stats
+  const { data: updated, error: updErr } = await supabase
+    .from('users')
+    .update({ xp: newXp, coins: newCoins, streak: newStreak })
+    .eq('id', userId)
+    .select('id, username, xp, coins, streak, updated_at')
+    .single();
+
+  if (updErr) {
+    console.error('Delta stats update error:', updErr);
+    return sendError(res, 'Failed to update stats', 500);
+  }
+
+  let unlocked = false;
+  let nextLesson = null;
+
+  // If lessonId provided, upsert progress and possibly unlock next on sufficient score
+  if (lessonId) {
+    // Upsert progress for this lesson
+    const status = typeof score === 'number' && score >= 40 ? 'completed' : 'in_progress';
+
+    const { data: progressUpsert, error: progressErr } = await supabase
+      .from('progress')
+      .upsert(
+        { user_id: userId, lesson_id: lessonId, status, score: score || 0, completed_at: status === 'completed' ? new Date().toISOString() : null },
+        { onConflict: 'user_id,lesson_id' }
+      )
+      .select('id, status')
+      .single();
+
+    if (progressErr) {
+      console.error('Progress upsert error:', progressErr);
+    }
+
+    // If completed, find and unlock next lesson
+    if (progressUpsert && progressUpsert.status === 'completed') {
+      const { data: currentLesson, error: curErr } = await supabase
+        .from('lessons')
+        .select('order_index')
+        .eq('id', lessonId)
+        .single();
+
+      if (!curErr && currentLesson) {
+        const { data: next, error: nextErr } = await supabase
+          .from('lessons')
+          .select('id, title, order_index')
+          .eq('order_index', currentLesson.order_index + 1)
+          .single();
+
+        if (!nextErr && next) {
+          // Ensure progress exists for next lesson
+          const { data: existingProgress, error: existingErr } = await supabase
+            .from('progress')
+            .select('id')
+            .eq('user_id', userId)
+            .eq('lesson_id', next.id)
+            .single();
+
+          if (existingErr && existingErr.code !== 'PGRST116') {
+            console.error('Next progress check error:', existingErr);
+          }
+
+          if (!existingProgress) {
+            const { error: createErr } = await supabase
+              .from('progress')
+              .insert([{ user_id: userId, lesson_id: next.id, status: 'not_started', score: 0 }]);
+
+            if (!createErr) {
+              unlocked = true;
+              nextLesson = { id: next.id, title: next.title, orderIndex: next.order_index };
+            }
+          }
+        }
+      }
+    }
+  }
+
+  sendSuccess(res, 'Stats updated', {
+    user: {
+      id: updated.id,
+      username: updated.username,
+      xp: updated.xp,
+      coins: updated.coins,
+      streak: updated.streak,
+      updatedAt: updated.updated_at
+    },
+    unlocked,
+    nextLesson
+  });
+});
+
+/**
+ * Get user progress summary: lessons completed, total XP, coins balance
+ */
+export const getUserProgressSummary = asyncHandler(async (req, res) => {
+  const userId = req.user.id;
+
+  const { data: user, error: userErr } = await supabase
+    .from('users')
+    .select('id, xp, coins')
+    .eq('id', userId)
+    .single();
+
+  if (userErr || !user) {
+    return sendError(res, 'Failed to load user', 500);
+  }
+
+  const { data: progress, error: progErr } = await supabase
+    .from('progress')
+    .select('status, score')
+    .eq('user_id', userId);
+
+  if (progErr) {
+    console.error('Progress summary error:', progErr);
+  }
+
+  const completedLessons = (progress || []).filter(p => p.status === 'completed').length;
+  const accuracyRate = (() => {
+    const completed = (progress || []).filter(p => p.status === 'completed');
+    if (completed.length === 0) return 0;
+    const avg = completed.reduce((sum, p) => sum + (p.score || 0), 0) / completed.length;
+    return Math.round(avg);
+  })();
+
+  sendSuccess(res, 'Progress summary', {
+    completedLessons,
+    totalXp: user.xp,
+    coinsBalance: user.coins,
+    accuracyRate
   });
 });

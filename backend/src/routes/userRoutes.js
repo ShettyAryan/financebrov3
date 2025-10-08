@@ -4,7 +4,9 @@ import {
   loginUser, 
   getUserProfile, 
   updateUserProfile, 
-  updateUserStats 
+  updateUserStats, 
+  updateStatsAndUnlock, 
+  getUserProgressSummary 
 } from '../controllers/userController.js';
 import { authenticateToken } from '../middleware/auth.js';
 import { validateRegistration, validateLogin } from '../middleware/validation.js';
@@ -45,5 +47,19 @@ router.put('/profile', authenticateToken, updateUserProfile);
  * @access  Private
  */
 router.put('/stats', authenticateToken, updateUserStats);
+
+/**
+ * @route   POST /api/users/updateStats
+ * @desc    Update stats with deltas and unlock next lesson if completed
+ * @access  Private
+ */
+router.post('/updateStats', authenticateToken, updateStatsAndUnlock);
+
+/**
+ * @route   GET /api/users/progress
+ * @desc    Get user progress summary (completed lessons, total XP, coins)
+ * @access  Private
+ */
+router.get('/progress', authenticateToken, getUserProgressSummary);
 
 export default router;
