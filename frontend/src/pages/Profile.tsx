@@ -4,10 +4,15 @@ import { Award, CheckCircle2, TrendingUp, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useUser } from "@/hooks/useApi";
 import { useUserProgressSummary } from "@/hooks/useApi";
+import { useProgress } from "@/hooks/useApi";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Profile = () => {
-  const { data: user } = useUser();
-  const { data: summary } = useUserProgressSummary();
+  const { isAuthenticated } = useAuth();
+  const { data: user, isLoading: userLoading, error: userError } = useUser();
+  const { data: summary, isLoading: summaryLoading, error: summaryError } = useUserProgressSummary();
+  const { data: progressData, isLoading: progressLoading, error: progressError } = useProgress({ status: 'completed', limit: 5 });
 
   const xp = user?.xp || 0;
   const coins = user?.coins || 0;
@@ -17,17 +22,23 @@ const Profile = () => {
   const name = user?.username || 'User';
 
   const badges = [
-    { id: 1, name: "First Lesson", icon: "🎓", earned: true },
-    { id: 2, name: "Week Streak", icon: "🔥", earned: true },
-    { id: 3, name: "Quiz Master", icon: "🏆", earned: false },
-    { id: 4, name: "Practice Pro", icon: "🎯", earned: true },
+    { id: 1, name: "First Lesson", icon: "🎓", earned: (summary?.completedLessons || 0) > 0 },
+    { id: 2, name: "Week Streak", icon: "🔥", earned: streak >= 7 },
+    { id: 3, name: "Quiz Master", icon: "🏆", earned: (summary?.accuracyRate || 0) >= 80 },
+    { id: 4, name: "Practice Pro", icon: "🎯", earned: (summary?.completedLessons || 0) >= 5 },
   ];
 
-  const completedLessons = [
-    { id: 1, title: "Understanding P/E Ratio", category: "Ratios", xp: 50 },
-    { id: 2, title: "Financial Ratios Basics", category: "Ratios", xp: 45 },
-    { id: 3, title: "Market Capitalization", category: "Basics", xp: 40 },
-  ];
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-background pb-24 flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <h1 className="font-heading font-bold text-2xl text-foreground">Please sign in to view your profile</h1>
+          <p className="text-muted-foreground">Create an account or sign in to see your name, XP, coins, and streak.</p>
+        </div>
+        <BottomNav />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background pb-24">
@@ -40,7 +51,14 @@ const Profile = () => {
                 <span className="text-3xl">👤</span>
               </div>
               <div className="flex-1 space-y-2">
-                <h1 className="font-heading font-bold text-2xl text-foreground">{name}</h1>
+                {userLoading ? (
+                  <div className="space-y-2">
+                    <Skeleton className="h-6 w-40" />
+                    <Skeleton className="h-4 w-24" />
+                  </div>
+                ) : (
+                  <h1 className="font-heading font-bold text-2xl text-foreground">{name}</h1>
+                )}
                 <div className="flex items-center gap-2">
                   <div className="px-3 py-1 bg-primary/10 rounded-full">
                     <span className="text-sm font-stats font-semibold text-primary">
@@ -69,7 +87,16 @@ const Profile = () => {
               </div>
             </div>
 
-            <StatsDisplay name={name} level={level} streak={streak} xp={xp} coins={coins} xpToNextLevel={xpToNextLevel} />
+            {userLoading ? (
+              <div className="grid grid-cols-2 gap-4">
+                <Skeleton className="h-16" />
+                <Skeleton className="h-16" />
+                <Skeleton className="h-16" />
+                <Skeleton className="h-16" />
+              </div>
+            ) : (
+              <StatsDisplay name={name} level={level} streak={streak} xp={xp} coins={coins} xpToNextLevel={xpToNextLevel} />
+            )}
           </div>
         </div>
 
@@ -106,12 +133,21 @@ const Profile = () => {
             <h2 className="font-heading font-bold text-xl text-foreground">Performance</h2>
           </div>
           <div className="bg-card rounded-2xl p-6 shadow-card space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <StatCard label="Accuracy" value={`${summary?.accuracyRate ?? 0}%`} color="text-primary" />
-              <StatCard label="Lessons" value={summary?.completedLessons ?? 0} color="text-secondary" />
-              <StatCard label="Total XP" value={xp} color="text-accent" />
-              <StatCard label="Streak" value={`${streak} days`} color="text-destructive" />
-            </div>
+            {summaryLoading ? (
+              <div className="grid grid-cols-2 gap-4">
+                <Skeleton className="h-16" />
+                <Skeleton className="h-16" />
+                <Skeleton className="h-16" />
+                <Skeleton className="h-16" />
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-4">
+                <StatCard label="Accuracy" value={`${summary?.accuracyRate ?? 0}%`} color="text-primary" />
+                <StatCard label="Lessons" value={summary?.completedLessons ?? 0} color="text-secondary" />
+                <StatCard label="Total XP" value={xp} color="text-accent" />
+                <StatCard label="Streak" value={`${streak} days`} color="text-destructive" />
+              </div>
+            )}
           </div>
         </section>
 
@@ -121,9 +157,35 @@ const Profile = () => {
             <BookOpen className="w-5 h-5 text-primary" />
             <h2 className="font-heading font-bold text-xl text-foreground">Completed Lessons</h2>
           </div>
-          <div className="space-y-2 text-sm text-muted-foreground">
-            This will list your recent completed lessons once a history view is added.
-          </div>
+          {progressLoading ? (
+            <div className="grid gap-3">
+              <Skeleton className="h-14" />
+              <Skeleton className="h-14" />
+              <Skeleton className="h-14" />
+            </div>
+          ) : progressError ? (
+            <div className="text-sm text-destructive">Failed to load completed lessons.</div>
+          ) : (
+            <div className="space-y-3">
+              {progressData?.progress?.length ? (
+                progressData.progress.map((p) => (
+                  <div key={p.id} className="bg-card rounded-xl p-4 shadow-card flex items-center justify-between">
+                    <div>
+                      <p className="font-medium text-foreground">{p.lesson.title}</p>
+                      <p className="text-xs text-muted-foreground">Completed {p.completedAt ? new Date(p.completedAt).toLocaleDateString() : ''}</p>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-sm font-stats font-semibold text-primary">+{p.lesson.xpReward} XP</span>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="space-y-2 text-sm text-muted-foreground">
+                  No completed lessons yet. Start learning to see them here.
+                </div>
+              )}
+            </div>
+          )}
         </section>
 
         {/* Actions */}

@@ -177,8 +177,9 @@ class ApiClient {
   }
 
   async getUserProfile(): Promise<User> {
-    const response = await this.request<User>('/users/profile');
-    return response.data!;
+    // Backend returns { user, stats, achievements } in data
+    const response = await this.request<{ user: User; stats?: any; achievements?: any[] }>('/users/profile');
+    return (response.data as any)?.user as User;
   }
 
   async updateUserProfile(userData: {
