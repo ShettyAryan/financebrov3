@@ -80,6 +80,30 @@ export interface UserProgressSummary {
   accuracyRate: number;
 }
 
+// AI Practice types
+export interface AIQuestion {
+  id: string;
+  scenario: string;
+  options: string[];
+  answer: number;
+  explanation: string;
+}
+
+export interface GenerateQuizResponse {
+  lesson_id: string;
+  concept_name: string;
+  questions: AIQuestion[];
+}
+
+export interface EvaluatePracticeResponse {
+  score: number;
+  weak_areas: string[];
+  feedback: string;
+  recommended_lessons: string[];
+  xp_delta: number;
+  coins_delta: number;
+}
+
 // API Client Class
 class ApiClient {
   private baseURL: string;
@@ -448,6 +472,32 @@ class ApiClient {
 
   async analyzeLearningPatterns(): Promise<any> {
     const response = await this.request<any>('/ai/analysis');
+    return response.data!;
+  }
+
+  // AI Practice endpoints (FastAPI forwarded via Node)
+  async generatePracticeQuiz(payload: {
+    lessonId: string;
+    conceptName: string;
+    lessonContent: string;
+  }): Promise<GenerateQuizResponse> {
+    const response = await this.request<GenerateQuizResponse>('/ai/practice/generate', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+    return response.data!;
+  }
+
+  async evaluatePractice(payload: {
+    lessonId: string;
+    conceptName: string;
+    questions: AIQuestion[];
+    userAnswers: number[];
+  }): Promise<EvaluatePracticeResponse> {
+    const response = await this.request<EvaluatePracticeResponse>('/ai/practice/evaluate', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
     return response.data!;
   }
 }

@@ -1,86 +1,63 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { BottomNav } from "@/components/BottomNav";
-import { Target, TrendingUp, AlertCircle } from "lucide-react";
+import { Target, TrendingUp, AlertCircle, Award } from "lucide-react";
 import { toast } from "sonner";
+import { useGeneratePracticeQuiz, useEvaluatePractice } from "@/hooks/useApi";
+import { useLocation } from "react-router-dom";
 
 const Practice = () => {
-  const [currentScenario, setCurrentScenario] = useState(0);
-  const [selectedAnswer, setSelectedAnswer] = useState("");
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
+  const [answers, setAnswers] = useState<number[]>([]);
   const [showFeedback, setShowFeedback] = useState(false);
-  const [score, setScore] = useState({ correct: 0, total: 0 });
+  const [result, setResult] = useState<{ score: number; feedback: string; xp?: number; coins?: number } | null>(null);
 
-  const scenarios = [
-    {
-      id: 1,
-      title: "Tech Startup Analysis",
-      scenario:
-        "You're analyzing a tech startup with a P/E ratio of 45, compared to an industry average of 25. The company has strong revenue growth of 40% YoY and expanding profit margins.",
-      question: "Should you invest based on fundamental analysis?",
-      options: [
-        "Yes, high P/E indicates strong growth potential",
-        "No, the P/E is too high compared to industry average",
-        "Maybe, need more information about debt levels",
-        "Yes, but only short-term due to volatility",
-      ],
-      correctAnswer: "Yes, high P/E indicates strong growth potential",
-      feedback:
-        "Correct! A high P/E ratio can be justified for growth companies with strong fundamentals. The 40% revenue growth and improving margins support the premium valuation.",
-      xpReward: 25,
-      coinReward: 15,
-    },
-    {
-      id: 2,
-      title: "Retail Giant Evaluation",
-      scenario:
-        "A large retail company shows declining same-store sales (-5%), but maintains a low P/E of 8 and high dividend yield of 6%. The company has minimal debt.",
-      question: "What's the best investment decision?",
-      options: [
-        "Strong buy - low P/E and high dividend",
-        "Hold - wait for sales improvement",
-        "Sell - declining sales are a red flag",
-        "Buy with caution - focus on turnaround potential",
-      ],
-      correctAnswer: "Buy with caution - focus on turnaround potential",
-      feedback:
-        "Good thinking! The low valuation and high dividend are attractive, but declining sales warrant caution. This could be a value opportunity if management can execute a turnaround.",
-      xpReward: 30,
-      coinReward: 20,
-    },
-  ];
+  const generateMutation = useGeneratePracticeQuiz();
+  const evaluateMutation = useEvaluatePractice();
 
-  const currentPractice = scenarios[currentScenario];
+  // Expect lesson data via router state
+  const location = useLocation() as any;
+  const { lessonId, conceptName, lessonContent } = location.state || {};
+
+  useEffect(() => {
+    if (!lessonId || !lessonContent) return;
+    generateMutation.mutate({ lessonId, conceptName, lessonContent }, {
+      onError: (err) => {
+        toast.error(err instanceof Error ? err.message : 'Failed to generate practice');
+      }
+    });
+  }, [lessonId, conceptName, lessonContent]);
+
+  const questions = generateMutation.data?.questions || [];
+  const current = questions[currentIndex];
 
   const handleSubmit = () => {
-    const isCorrect = selectedAnswer === currentPractice.correctAnswer;
+    if (selectedAnswer === null) return;
     setShowFeedback(true);
-    
-    const newTotal = score.total + 1;
-    const newCorrect = isCorrect ? score.correct + 1 : score.correct;
-    
-    setScore({ correct: newCorrect, total: newTotal });
-
-    if (isCorrect) {
-      toast.success(`Correct! +${currentPractice.xpReward} XP, +${currentPractice.coinReward} Coins`, {
-        duration: 3000,
-      });
-    } else {
-      toast.error("Try again! Review the lesson for hints.", {
-        duration: 3000,
-      });
-    }
+    setAnswers((prev) => {
+      const next = [...prev];
+      next[currentIndex] = selectedAnswer;
+      return next;
+    });
   };
 
   const handleNext = () => {
-    if (currentScenario < scenarios.length - 1) {
-      setCurrentScenario(currentScenario + 1);
-      setSelectedAnswer("");
+    if (currentIndex < questions.length - 1) {
+      setCurrentIndex(currentIndex + 1);
+      setSelectedAnswer(null);
       setShowFeedback(false);
     } else {
-      toast.success(`Practice Complete! Score: ${score.correct + 1}/${score.total + 1}`, {
-        duration: 4000,
+      // Evaluate
+      evaluateMutation.mutate({ lessonId, conceptName, questions, userAnswers: answers }, {
+        onSuccess: (res) => {
+          setResult({ score: res.score, feedback: res.feedback, xp: res.xp_delta, coins: res.coins_delta });
+        },
+        onError: (err) => {
+          toast.error(err instanceof Error ? err.message : 'Failed to evaluate');
+        }
       });
     }
   };
@@ -108,7 +85,7 @@ const Practice = () => {
                 <span className="font-medium text-foreground">Progress</span>
               </div>
               <span className="font-stats font-semibold text-primary">
-                {currentScenario + 1} / {scenarios.length}
+                {Math.min(currentIndex + 1, questions.length || 0)} / {questions.length || 0}
               </span>
             </div>
           </div>
@@ -120,32 +97,32 @@ const Practice = () => {
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <span className="text-xs font-semibold text-secondary bg-secondary/10 px-3 py-1 rounded-full">
-                  Scenario {currentPractice.id}
+                  Question {currentIndex + 1}
                 </span>
               </div>
               <h2 className="font-heading font-bold text-xl text-foreground">
-                {currentPractice.title}
+                {conceptName || 'Practice'}
               </h2>
             </div>
 
             <div className="bg-muted/30 rounded-xl p-4 border-l-4 border-secondary">
-              <p className="text-foreground leading-relaxed">{currentPractice.scenario}</p>
+              <p className="text-foreground leading-relaxed">{current?.scenario || 'Loading...'}</p>
             </div>
 
             <div className="space-y-4">
-              <p className="font-medium text-foreground">{currentPractice.question}</p>
+              <p className="font-medium text-foreground">Select the best answer</p>
 
               <RadioGroup
                 value={selectedAnswer}
                 onValueChange={setSelectedAnswer}
                 className="space-y-3"
               >
-                {currentPractice.options.map((option, idx) => (
+                {(current?.options || []).map((option, idx) => (
                   <div
                     key={idx}
                     className="flex items-start space-x-3 bg-muted/20 rounded-xl p-4 cursor-pointer hover:bg-muted/40 transition-colors"
                   >
-                    <RadioGroupItem value={option} id={`option-${idx}`} className="mt-0.5" />
+                    <RadioGroupItem value={idx.toString()} id={`option-${idx}`} className="mt-0.5" />
                     <Label
                       htmlFor={`option-${idx}`}
                       className="flex-1 cursor-pointer leading-relaxed"
@@ -159,21 +136,13 @@ const Practice = () => {
           </div>
 
           {/* Feedback */}
-          {showFeedback && (
+          {showFeedback && current && (
             <div className="bg-secondary/10 border-2 border-secondary rounded-2xl p-6 shadow-card space-y-3 animate-scale-in">
               <div className="flex items-center gap-3">
                 <AlertCircle className="w-6 h-6 text-secondary" />
                 <h3 className="font-heading font-bold text-lg text-foreground">Analysis</h3>
               </div>
-              <p className="text-foreground leading-relaxed">{currentPractice.feedback}</p>
-              <div className="flex gap-3 pt-2">
-                <span className="text-sm font-stats font-semibold text-secondary bg-secondary/10 px-3 py-1.5 rounded-lg">
-                  +{currentPractice.xpReward} XP
-                </span>
-                <span className="text-sm font-stats font-semibold text-accent bg-accent/10 px-3 py-1.5 rounded-lg">
-                  +{currentPractice.coinReward} Coins
-                </span>
-              </div>
+              <p className="text-foreground leading-relaxed">{current.explanation}</p>
             </div>
           )}
 
@@ -183,14 +152,14 @@ const Practice = () => {
               <Button
                 size="lg"
                 onClick={handleSubmit}
-                disabled={!selectedAnswer}
+                disabled={selectedAnswer === null}
                 className="w-full"
               >
                 Submit Answer
               </Button>
             ) : (
               <Button size="lg" onClick={handleNext} className="w-full">
-                {currentScenario < scenarios.length - 1 ? "Next Scenario" : "Complete Practice"}
+                {currentIndex < (questions.length || 0) - 1 ? "Next Question" : (evaluateMutation.status === 'pending' ? 'Evaluating...' : 'Complete Practice')}
               </Button>
             )}
           </div>
@@ -198,6 +167,28 @@ const Practice = () => {
       </div>
 
       <BottomNav />
+      {/* Result Modal (inline simple) */}
+      {result && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4">
+          <div className="bg-card rounded-2xl shadow-card p-6 max-w-md w-full space-y-4 animate-scale-in">
+            <div className="flex items-center gap-3">
+              <Award className="w-6 h-6 text-primary" />
+              <h3 className="font-heading font-bold text-xl text-foreground">Practice Results</h3>
+            </div>
+            <p className="text-foreground">You scored <span className="font-stats font-semibold text-primary">{result.score}/10</span>.</p>
+            {typeof result.xp === 'number' && typeof result.coins === 'number' && (
+              <div className="flex gap-3">
+                <span className="text-sm font-stats font-semibold text-secondary bg-secondary/10 px-3 py-1.5 rounded-lg">+{result.xp} XP</span>
+                <span className="text-sm font-stats font-semibold text-accent bg-accent/10 px-3 py-1.5 rounded-lg">+{result.coins} Coins</span>
+              </div>
+            )}
+            <div className="bg-muted/30 rounded-xl p-4">
+              <p className="text-sm text-muted-foreground leading-relaxed">{result.feedback}</p>
+            </div>
+            <Button className="w-full" onClick={() => window.history.back()}>Close</Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

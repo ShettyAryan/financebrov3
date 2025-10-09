@@ -85,61 +85,93 @@ export const generateFeedback = asyncHandler(async (req, res) => {
 });
 
 /**
- * Generate practice scenarios (placeholder)
+ * Generate practice scenarios (FastAPI forwarding)
  * @param {Object} req - Express request object
  * @param {Object} res - Express response object
  */
 export const generatePracticeScenarios = asyncHandler(async (req, res) => {
-  const { lessonId, difficulty = 'medium', count = 3, userLevel } = req.body;
+  const userId = req.user.id;
+  const { lessonId, conceptName, lessonContent } = req.body;
 
-  // Placeholder for AI scenario generation
-  // In the future, this will call the Python FastAPI service with Gemini
-  
-  const mockScenarios = Array.from({ length: count }, (_, index) => ({
-    scenarioId: `scenario_${Date.now()}_${index}`,
-    lessonId,
-    difficulty,
-    title: `Practice Scenario ${index + 1}`,
-    description: `AI-generated scenario for lesson ${lessonId} at ${difficulty} difficulty`,
-    content: {
-      company: {
-        name: `TechCorp ${index + 1}`,
-        industry: "Technology",
-        marketCap: "$2.5B",
-        description: "A growing technology company with strong fundamentals"
-      },
-      financials: {
-        revenue: "$500M",
-        netIncome: "$75M",
-        assets: "$1.2B",
-        liabilities: "$400M",
-        equity: "$800M"
-      },
-      question: "Based on the financial data provided, what would be your investment recommendation?",
-      options: [
-        "Strong Buy - Excellent fundamentals",
-        "Buy - Good growth potential",
-        "Hold - Wait for better entry point",
-        "Sell - Overvalued relative to peers"
-      ],
-      correctAnswer: index % 2 === 0 ? 0 : 1, // Mock correct answer
-      explanation: "This scenario tests your ability to analyze financial ratios and make investment decisions based on fundamental analysis principles."
-    },
-    metadata: {
-      generatedAt: new Date().toISOString(),
-      aiModel: "gemini-pro",
-      userLevel,
-      estimatedTime: "5-10 minutes"
+  try {
+    // Optional Node-side cache can be added here per (userId, lessonId)
+    const baseUrl = process.env.PRACTICE_AI_URL || 'http://localhost:8000';
+    const response = await fetch(`${baseUrl}/api/practice/generate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        user_id: userId,
+        lesson_id: lessonId,
+        concept_name: conceptName,
+        lesson_content: lessonContent
+      })
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      return sendError(res, data?.detail || 'Failed to generate practice', response.status);
     }
-  }));
+    return sendSuccess(res, 'Practice generated', data);
+  } catch (e) {
+    console.error('AI generate error:', e);
+    return sendError(res, 'Failed to generate practice', 500);
+  }
+});
 
-  sendSuccess(res, 'Practice scenarios generated successfully', {
-    scenarios: mockScenarios,
-    totalCount: count,
-    difficulty,
-    lessonId,
-    generatedAt: new Date().toISOString()
-  });
+/**
+ * Evaluate practice results (FastAPI forwarding) and update Supabase
+ */
+export const evaluatePractice = asyncHandler(async (req, res) => {
+  const userId = req.user.id;
+  const { lessonId, conceptName, questions, userAnswers } = req.body;
+  try {
+    const baseUrl = process.env.PRACTICE_AI_URL || 'http://localhost:8000';
+    const response = await fetch(`${baseUrl}/api/practice/evaluate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        user_id: userId,
+        lesson_id: lessonId,
+        concept_name: conceptName,
+        questions,
+        user_answers: userAnswers
+      })
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      return sendError(res, data?.detail || 'Failed to evaluate practice', response.status);
+    }
+
+    // Update coins and xp in users table
+    try {
+      const { supabase } = await import('../config/database.js');
+      const { data: current, error: curErr } = await supabase
+        .from('users')
+        .select('xp, coins')
+        .eq('id', userId)
+        .single();
+      if (!curErr && current) {
+        const newXp = Math.max(0, (current.xp || 0) + (data.xp_delta || 0));
+        const newCoins = Math.max(0, (current.coins || 0) + (data.coins_delta || 0));
+        await supabase
+          .from('users')
+          .update({ xp: newXp, coins: newCoins })
+          .eq('id', userId);
+      }
+
+      // Insert a practice session record
+      await supabase
+        .from('practice')
+        .insert([{ user_id: userId, lesson_id: lessonId, coins_earned: Math.max(0, data.coins_delta || 0), coins_lost: 0, attempts: questions?.length || 10, last_feedback: data.feedback || null, session_data: { score: data.score, weak_areas: data.weak_areas } }]);
+    } catch (dbErr) {
+      console.error('Practice evaluation DB update failed:', dbErr);
+      // Continue; still return evaluation to client
+    }
+
+    return sendSuccess(res, 'Practice evaluated', data);
+  } catch (e) {
+    console.error('AI evaluate error:', e);
+    return sendError(res, 'Failed to evaluate practice', 500);
+  }
 });
 
 /**

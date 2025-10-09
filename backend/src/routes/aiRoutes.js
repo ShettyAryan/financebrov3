@@ -4,7 +4,8 @@ import {
   generateFeedback, 
   generatePracticeScenarios, 
   analyzeLearningPatterns, 
-  getAIHealth 
+  getAIHealth,
+  evaluatePractice 
 } from '../controllers/aiController.js';
 import { authenticateToken, optionalAuth } from '../middleware/auth.js';
 
@@ -37,6 +38,9 @@ router.post('/feedback', authenticateToken, generateFeedback);
  * @access  Private
  */
 router.post('/scenarios', authenticateToken, generatePracticeScenarios);
+// New: generate quiz aligned with a lesson
+router.post('/practice/generate', authenticateToken, generatePracticeScenarios);
+router.post('/practice/evaluate', authenticateToken, evaluatePractice);
 
 /**
  * @route   GET /api/ai/analysis

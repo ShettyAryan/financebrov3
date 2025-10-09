@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import apiClient, { Lesson, Progress, PracticeSession, User, UserProgressSummary } from '@/lib/api';
+import apiClient, { Lesson, Progress, PracticeSession, User, UserProgressSummary, GenerateQuizResponse, EvaluatePracticeResponse, AIQuestion } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
@@ -305,5 +305,20 @@ export const useAnalyzeLearningPatterns = () => {
     queryFn: () => apiClient.analyzeLearningPatterns(),
     enabled: isAuthenticated,
     staleTime: 10 * 60 * 1000, // 10 minutes
+  });
+};
+
+// Practice AI Hooks
+export const useGeneratePracticeQuiz = () => {
+  return useMutation({
+    mutationFn: (payload: { lessonId: string; conceptName: string; lessonContent: string; }) =>
+      apiClient.generatePracticeQuiz(payload),
+  });
+};
+
+export const useEvaluatePractice = () => {
+  return useMutation({
+    mutationFn: (payload: { lessonId: string; conceptName: string; questions: AIQuestion[]; userAnswers: number[]; }) =>
+      apiClient.evaluatePractice(payload),
   });
 };
