@@ -229,7 +229,7 @@ export const getProgressStats = asyncHandler(async (req, res) => {
     return sendError(res, 'Failed to fetch user stats', 500);
   }
 
-  // Get progress summary
+  // Get progress summary for this user
   const { data: progress, error: progressError } = await supabase
     .from('progress')
     .select('status, score, lessons!inner(xp_reward)')
@@ -240,11 +240,21 @@ export const getProgressStats = asyncHandler(async (req, res) => {
     return sendError(res, 'Failed to fetch progress stats', 500);
   }
 
+  // Get total number of lessons available (across the platform)
+  const { count: totalLessonsCount, error: lessonsCountError } = await supabase
+    .from('lessons')
+    .select('*', { count: 'exact', head: true });
+
+  if (lessonsCountError) {
+    console.error('Lessons count error:', lessonsCountError);
+  }
+
   // Calculate statistics
-  const totalLessons = progress.length;
+  const totalLessons = totalLessonsCount || 0;
   const completedLessons = progress.filter(p => p.status === 'completed').length;
   const inProgressLessons = progress.filter(p => p.status === 'in_progress').length;
-  const notStartedLessons = progress.filter(p => p.status === 'not_started').length;
+  // notStarted = total lessons minus those with any progress record
+  const notStartedLessons = Math.max(0, totalLessons - (completedLessons + inProgressLessons));
 
   const totalXpEarned = progress
     .filter(p => p.status === 'completed')
