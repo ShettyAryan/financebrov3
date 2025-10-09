@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
@@ -19,42 +19,39 @@ const Practice = () => {
 
   const generateMutation = useGeneratePracticeQuiz();
   const evaluateMutation = useEvaluatePractice();
+  const hasGeneratedRef = useRef(false);
 
   // Fetch lessons to display selectable completed items for practice
   const { data: lessonsData } = useLessons({ page: 1, limit: 100 });
 
   // Expect lesson data via router state
-  const location = useLocation() as any;
-  const { lessonId, conceptName, lessonContent } = location.state || {};
+  const location = useLocation();
+  const { lessonId, conceptName, lessonContent } = (location.state as { lessonId?: string; conceptName?: string; lessonContent?: string } | undefined) || {};
 
+  // If navigated with lesson in route state, set active lesson (do not trigger generation here)
   useEffect(() => {
-    // Priority 1: if navigated with lesson data from another page
-    // If navigated with state, ignore lessonContent to force AI service JSON source
     if (lessonId) {
       const safeConcept = typeof conceptName === 'string' && conceptName.trim().length > 0 ? conceptName : 'Practice';
+      hasGeneratedRef.current = false;
       setActiveLesson({ lessonId, conceptName: safeConcept, lessonContent: '' });
-      generateMutation.mutate({ lessonId, conceptName: safeConcept, lessonContent: '' }, {
-        onError: (err) => {
-          toast.error(err instanceof Error ? err.message : 'Failed to generate practice');
-        }
-      });
-      return;
     }
+  }, [lessonId, conceptName]);
 
-    // Priority 2: if user selected a lesson within this page
-    // Trigger generation when a lesson is chosen; send empty content to use AI JSON fallback
-    if (activeLesson?.lessonId && (activeLesson.conceptName || '').trim().length > 0) {
-      generateMutation.mutate({ 
-        lessonId: activeLesson.lessonId, 
-        conceptName: activeLesson.conceptName, 
-        lessonContent: '' 
-      }, {
+  // Trigger generation once per active lesson
+  useEffect(() => {
+    if (!activeLesson?.lessonId || !(activeLesson.conceptName || '').trim()) return;
+    if (hasGeneratedRef.current) return;
+    hasGeneratedRef.current = true;
+    generateMutation.mutate({ 
+      lessonId: activeLesson.lessonId, 
+      conceptName: activeLesson.conceptName, 
+      lessonContent: '' 
+    }, {
       onError: (err) => {
         toast.error(err instanceof Error ? err.message : 'Failed to generate practice');
       }
-      });
-    }
-  }, [lessonId, conceptName, lessonContent, activeLesson?.lessonId]);
+    });
+  }, [activeLesson?.lessonId, activeLesson?.conceptName, generateMutation]);
 
   const questions = generateMutation.data?.questions || [];
   const current = questions[currentIndex];
@@ -75,8 +72,14 @@ const Practice = () => {
       setSelectedAnswer(null);
       setShowFeedback(false);
     } else {
-      // Evaluate
-      evaluateMutation.mutate({ lessonId, conceptName, questions, userAnswers: answers }, {
+      // Evaluate using active lesson if selected on this page; otherwise use route state
+      const evalLessonId = activeLesson?.lessonId || lessonId;
+      const evalConceptName = activeLesson?.conceptName || conceptName || 'Practice';
+      if (!evalLessonId) {
+        toast.error('Missing lesson to evaluate');
+        return;
+      }
+      evaluateMutation.mutate({ lessonId: evalLessonId, conceptName: evalConceptName, questions, userAnswers: answers.map((a) => Number(a)) }, {
         onSuccess: (res) => {
           setResult({ score: res.score, feedback: res.feedback, xp: res.xp_delta, coins: res.coins_delta });
         },
@@ -112,6 +115,7 @@ const Practice = () => {
                     className="text-left bg-card rounded-2xl p-4 shadow-card hover:shadow-lg transition-shadow border border-border"
                     onClick={() => {
                       // Do not fetch from DB; rely on AI service JSON lessons by id/title
+                      hasGeneratedRef.current = false;
                       setActiveLesson({ lessonId: l.id, conceptName: l.title, lessonContent: '' });
                     }}
                   >
@@ -184,8 +188,8 @@ const Practice = () => {
                   <p className="font-medium text-foreground">Select the best answer</p>
 
                   <RadioGroup
-                    value={selectedAnswer}
-                    onValueChange={setSelectedAnswer}
+                    value={selectedAnswer === null ? undefined : String(selectedAnswer)}
+                    onValueChange={(v) => setSelectedAnswer(Number(v))}
                     className="space-y-3"
                   >
                     {(current?.options || []).map((option, idx) => (
