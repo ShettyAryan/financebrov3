@@ -56,6 +56,12 @@ const Practice = () => {
   const questions = generateMutation.data?.questions || [];
   const current = questions[currentIndex];
 
+  // When question index changes, preload previously selected answer for that question (if any), else clear
+  useEffect(() => {
+    const existing = answers[currentIndex];
+    setSelectedAnswer(typeof existing === 'number' ? existing : null);
+  }, [currentIndex, answers]);
+
   const handleSubmit = () => {
     if (selectedAnswer === null) return;
     setShowFeedback(true);
@@ -188,6 +194,7 @@ const Practice = () => {
                   <p className="font-medium text-foreground">Select the best answer</p>
 
                   <RadioGroup
+                    key={current?.id || currentIndex}
                     value={selectedAnswer === null ? undefined : String(selectedAnswer)}
                     onValueChange={(v) => setSelectedAnswer(Number(v))}
                     className="space-y-3"
