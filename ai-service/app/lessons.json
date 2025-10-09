@@ -1,0 +1,173 @@
+{
+    "lessons": [
+      {
+        "id": "1",
+        "title": "What is Fundamental Analysis?",
+        "content": "Fundamental analysis is the process of evaluating a company’s financial health, business model, and future potential to determine its true value. Unlike technical analysis, which focuses on stock price movements and charts, fundamental analysis focuses on the company itself — its profits, assets, management, and growth prospects."
+      },
+      {
+        "id": "2",
+        "title": "Why Analyze Companies?",
+        "content": "Over time, a company’s stock price tends to follow its financial performance. When profits rise consistently, investor confidence grows, pushing the price higher. Conversely, poor results often lead to falling prices."
+      },
+      {
+        "id": "3",
+        "title": "Types of Fundamental Analysis",
+        "content": "Fundamental analysis has two parts: qualitative (the non-numerical aspects like management quality, business model, and brand strength) and quantitative (numbers like revenue, profit, ratios, and valuation). Both together give a complete view of the company."
+      },
+      {
+        "id": "4",
+        "title": "Reading a Company’s Business Model",
+        "content": "A business model explains how a company creates, delivers, and captures value. It shows what the company sells, to whom, and how it earns profit. Understanding this helps investors know if the business is sustainable and scalable."
+      },
+      {
+        "id": "5",
+        "title": "Industry Life Cycle (Growth, Mature, Decline)",
+        "content": "Every industry passes through stages—introduction, growth, maturity, and decline. Knowing which stage an industry is in helps investors gauge potential risks and opportunities."
+      },
+      {
+        "id": "6",
+        "title": "Competitive Advantage (Moat)",
+        "content": "A moat is a company’s unique advantage that protects it from competitors—like a strong brand, patents, cost efficiency, or network effects. Firms with wide moats can sustain high profits longer."
+      },
+      {
+        "id": "7",
+        "title": "Porter’s Five Forces",
+        "content": "Michael Porter’s model identifies five factors shaping industry competition: (1) threat of new entrants, (2) threat of substitutes, (3) bargaining power of suppliers, (4) bargaining power of buyers, and (5) rivalry among existing competitors."
+      },
+      {
+        "id": "8",
+        "title": "The Income Statement",
+        "content": "The income statement (also called the Profit & Loss statement) shows performance over a period — usually a quarter or a year.It answers: *Did the company make a profit? Key elements: Revenue (Sales)** – total money earned from goods/services. Cost of Goods Sold (COGS)** – direct costs of producing goods. Gross Profit = Revenue − COGS. Operating Expenses** – salaries, rent, marketing, admin. Operating Profit (EBIT) = Gross Profit − Operating Expenses Net Income = Operating Profit − Interest − Taxes. High profits signal efficiency; falling profits warn of cost or demand issues."
+      },
+      {
+        "id": "9",
+        "title": "The Balance Sheet",
+        "content": "A balance sheet shows a company’s financial position *on a specific date*. **Formula:** Assets = Liabilities + Shareholders’ Equity. • **Assets** – resources owned (cash, buildings, equipment). • **Liabilities** – debts or obligations (loans, payables). • **Equity** – residual value for owners after debts are paid. It helps investors gauge financial stability and leverage."
+
+      },
+      {
+        "id": "10",
+        "title": "The Cash Flow Statement",
+        "content": "Profit ≠ Cash. A company can show profit yet have little cash if payments are delayed. The cash flow statement groups movements into: 1. **Operating Activities** – cash from core business (sales − payments). 2. **Investing Activities** – buying/selling assets or investments. 3. **Financing Activities** – loans, dividends, share issues. **Free Cash Flow (FCF)** = Operating Cash Flow − Capital Expenditure. It shows cash left for dividends, debt repayment, or reinvestment."
+
+      },
+      {
+        "id": "11",
+        "title": "Linking the 3 Statements",
+        "content": "All statements talk to each other: 1. **Net Income** from the Income Statement flows to **Retained Earnings** on the Balance Sheet. 2. **Cash Flow Statement** starts with that Net Income and adjusts for non-cash items (e.g., depreciation). 3. The final cash balance from Cash Flow appears under **Assets → Cash** on the Balance Sheet. This linkage ensures accounting consistency — every profit or expense eventually affects cash or equity."
+      },
+      {
+        "id": "12",
+        "title": "Profitability Ratios",
+        "content": "Profitability ratios show how well a company converts revenue and capital into profit. Key ratios taught here: 1) Gross Margin = (Revenue − Cost of Goods Sold) ÷ Revenue. • What it tells you: How much profit is left after direct costs of making the product/service. • Simple view: Higher gross margin ⇒ better basic product economics. 2) Operating Margin = Operating Profit (EBIT) ÷ Revenue. • What it tells you: Profitability after operating costs (salaries, rent, marketing) but before interest and taxes. • Simple view: Shows core business efficiency. 3) ROE (Return on Equity) = Net Income ÷ Shareholders’ Equity. • What it tells you: How effectively the company uses owners’ money to generate profit. • Simple view: Higher ROE (sustainably) ⇒ management is using equity efficiently. 4) ROA (Return on Assets) = Net Income ÷ Total Assets. • What it tells you: How efficiently the company uses all assets to generate profit. • Simple view: Useful when comparing asset-heavy vs. asset-light businesses."
+      },
+      {
+        "id": "13",
+        "title": "Liquidity Ratios",
+        "content": "Liquidity ratios show if a company can meet near-term obligations. 1) Current Ratio = Current Assets ÷ Current Liabilities. • What it tells you: Can the company cover short-term liabilities using all current assets? • Rule of thumb: Around 1.5–2.0 is often comfortable (varies by industry). 2) Quick Ratio (Acid-Test) = (Current Assets − Inventory) ÷ Current Liabilities. • What it tells you: Can the company pay short-term liabilities using the most liquid assets (cash, receivables), excluding inventory? • Why exclude inventory? It may take time to sell and convert to cash."
+
+      },
+      {
+        "id": "14",
+        "title": "Solvency Ratios",
+        "content": "Solvency ratios look at long-term financial health and debt capacity. 1) Debt-to-Equity (D/E) = Total Debt ÷ Shareholders’ Equity. • What it tells you: How leveraged the company is. Higher D/E ⇒ more debt relative to equity. • Simple view: Too much debt can increase risk during downturns. 2) Interest Coverage Ratio = EBIT ÷ Interest Expense. • What it tells you: How comfortably a company can pay interest out of operating profit. • Rule of thumb: Above ~3× is generally comfortable (varies by industry/cycle)."
+
+      },
+      {
+        "id": "15",
+        "title": "Efficiency Ratios",
+        "content": "Efficiency ratios show how well resources generate sales. 1) Inventory Turnover = COGS ÷ Average Inventory. • What it tells you: How many times inventory is sold and replaced during a period. • Simple view: Higher turnover (for similar businesses) ⇒ faster movement, less stock sitting idle. 2) Asset Turnover = Revenue ÷ Average Total Assets. • What it tells you: How efficiently total assets generate sales. • Simple view: Higher asset turnover (within the same industry) ⇒ assets are being used more efficiently."
+
+      },
+      {
+        "id": "16",
+        "title": "Price vs. Value",
+        "content": "Price is simply what the market is currently willing to pay for a share. Value (often called intrinsic value) is what the business is actually worth based on earnings power, assets, and future potential. A share can be: • **Undervalued** → Market price below intrinsic value → possible buy. • **Overvalued** → Market price above intrinsic value → caution or sell. Warren Buffett’s rule: *“Price is what you pay; value is what you get.”* Short-term price = opinion; long-term value = fundamentals."
+
+      },
+      {
+        "id": "17",
+        "title": "Valuation Multiples (P/E, P/B, EV/EBITDA)",
+        "content": "**1. Price-to-Earnings (P/E)** = Share Price ÷ Earnings per Share (EPS). • Shows how much investors pay for ₹1 of earnings. • High P/E → growth expectations; Low P/E → cheap or risky. **2. Price-to-Book (P/B)** = Share Price ÷ Book Value per Share. • Book Value ≈ Net assets (assets − liabilities). • Useful for asset-heavy businesses like banks. **3. Enterprise Value to EBITDA (EV/EBITDA)** = (Market Cap + Debt − Cash) ÷ EBITDA. • Compares total business value to operating profit. • Preferred when companies have different debt levels."
+
+      },
+      {
+        "id": "18",
+        "title": "Discounted Cash Flow (DCF) Basics",
+        "content": "DCF (Discounted Cash Flow) values a company based on expected future cash flows brought to present value. **Steps:** 1. Estimate future Free Cash Flows (FCF) for 5–10 years. 2. Choose a discount rate (usually the required rate of return or WACC). 3. Discount each year’s FCF to present value using PV = FCF ÷ (1 + r)^n. 4. Add up all PV + Terminal Value → Intrinsic Value. If this value > market price → stock may be undervalued."
+
+      },
+      {
+        "id": "19",
+        "title": "Relative vs. Absolute Valuation",
+        "content": "**Relative Valuation:** • Compares a company to peers using multiples (P/E, P/B, EV/EBITDA). • Fast and useful for market comparison. **Absolute Valuation:** • Finds intrinsic value using DCF or asset-based methods. • Independent of market prices. **Example:** A stock with P/E of 15 vs industry 20 may look cheap (relatively), but if its cash flows are weak, absolute valuation might show it’s fairly priced."
+
+      },
+      {
+        "id": "20",
+        "title": "Management Quality & Corporate Governance",
+        "content": "Even profitable businesses can fail if leadership is weak or unethical. Good management makes strategic decisions, allocates capital wisely, and maintains integrity. **Key points:** • **Management Quality** → leadership vision, experience, and decision-making consistency. • **Corporate Governance** → rules and systems ensuring accountability and fairness. • Transparent reporting, independent boards, and ethical practices protect shareholders. Strong governance builds trust; poor governance often leads to fraud or scandals."
+
+      },
+      {
+        "id": "21",
+        "title": "Brand Value & Moat Deep Dive",
+        "content": "A brand is more than a logo — it’s the trust customers place in a company. Brands with high recall and loyalty can charge premium prices and face less competition. **Types of Moats:** • **Brand Moat:** Consumer preference due to reputation (Apple, HUL). • **Cost Moat:** Lowest production or delivery costs (D-Mart). • **Network Moat:** More users → more value (Amazon, Flipkart). • **Switching-Cost Moat:** Hard for users to leave (Microsoft Office)."
+
+      },
+      {
+        "id": "22",
+        "title": "Regulatory and Macro Factors",
+        "content": "Companies don’t operate in isolation — regulation and macroeconomics can change outcomes dramatically. **Regulatory Factors:** • Taxes, import/export rules, labor laws, environmental standards. • Sudden regulation shifts can help or hurt profits. **Macro Factors:** • GDP growth, inflation, interest rates, currency strength. • High interest rates can raise borrowing costs; inflation erodes margins; strong GDP growth boosts demand."
+
+      },
+      {
+        "id": "23",
+        "title": "Red Flags (Fraud, Aggressive Accounting, Poor Governance)",
+        "content": "Red flags are signals that a company’s reported numbers or behavior might be misleading. **Common Red Flags:** 1. **Frequent restatements** of financial results. 2. **Unusually high receivables** compared to sales (possible fake revenues). 3. **Rapidly rising debt** without clear reason. 4. **Management changing auditors** often or giving vague disclosures. 5. **Aggressive accounting** — booking income early or delaying expenses. 6. **Insider selling** — promoters reducing stake before bad news."
+
+      },
+      {
+        "id": "24",
+        "title": "Economic Indicators (GDP, Inflation, Interest Rates)",
+        "content": "Economic indicators show the health and direction of a country’s economy. They influence company performance, investor confidence, and stock prices. **Main Indicators:** • **GDP (Gross Domestic Product):** Total value of goods and services produced. High GDP growth → strong economy → higher corporate earnings. • **Inflation:** Measures how fast prices of goods and services are rising. Moderate inflation (2–5%) is healthy; too high reduces purchasing power. • **Interest Rates:** Set by central banks (e.g., RBI). Higher rates make loans expensive, slowing spending and growth; lower rates boost borrowing and investment."
+
+      },
+      {
+        "id": "25",
+        "title": "Cyclical vs. Defensive Sectors",
+        "content": "Industries react differently to economic cycles. **Cyclical Sectors:** • Their performance depends heavily on economic growth. • Examples: Automobiles, Real Estate, Hotels, Metals. • Sales rise in booms and drop in slowdowns. **Defensive Sectors:** • Demand stays stable regardless of the economy. • Examples: FMCG, Healthcare, Utilities. • People still buy essentials and medicines even during recessions."
+
+      },
+      {
+        "id": "26",
+        "title": "Impact of Global Events (Oil, Trade Wars, Rates)",
+        "content": "In a globalized world, events abroad can affect local markets too. **Common Global Influences:** • **Oil Prices:** High oil prices raise transport and manufacturing costs; good for oil producers, bad for airlines and logistics. • **Trade Wars:** Tariffs between nations increase input costs, hurt exporters, and slow global trade. • **Interest Rate Moves by the US Federal Reserve:** Higher US rates attract global capital to the US, weakening emerging-market currencies. Investors must track these global signals as they can move stock prices even without company-specific news."
+
+      },
+      {
+        "id": "27",
+        "title": "The Investment Checklist",
+        "content": "Before investing, it’s crucial to analyze a company from multiple angles — financial, qualitative, and macro. **Key items in a good checklist:** 1. **Business Model:** Do you understand how the company earns money? 2. **Industry Position:** Is it a market leader or a small player? 3. **Financial Health:** Check profitability, debt, and cash flow trends. 4. **Valuation:** Is the stock priced below its intrinsic value? 5. **Management Quality:** Is leadership transparent and consistent? 6. **Growth Drivers:** Are there future catalysts (new products, markets)? 7. **Risks:** What could go wrong (competition, regulation, disruption)? A structured checklist reduces emotional decisions and helps you stay objective."
+
+      },
+      {
+        "id": "28",
+        "title": "Case Study: Analyzing Apple, Tesla, or a Local Company",
+        "content": "The best way to learn investing is to apply the framework to a real company. We’ll use Apple as an example — you can do the same for any Indian stock like Infosys, TCS, or Maruti. **Steps to Analyze:** 1. **Business Understanding:** Apple sells hardware + services (iPhone, Mac, iCloud). 2. **Financials:** Revenue and profit growth have been steady; strong cash flows. 3. **Moat:** Brand loyalty + ecosystem lock-in. 4. **Valuation:** P/E ~25–30×; justified by growth & profitability. 5. **Risks:** Supply-chain dependency, regulation, global competition."
+      },
+      {
+        "id": "29",
+        "title": "Margin of Safety",
+        "content": "Coined by Benjamin Graham, the margin of safety means buying a stock significantly below its estimated intrinsic value. **Why it matters:** • It provides a cushion against analysis errors or unforeseen events. • The bigger the margin, the safer the investment. **Formula:** Margin of Safety (%) = (Intrinsic Value − Market Price) ÷ Intrinsic Value × 100. For example, if value = ₹500 and price = ₹400, Margin = (500−400)/500 = 20%."
+
+      },
+      {
+        "id": "30",
+        "title": "Building a Watchlist & Tracking Investments",
+        "content": "A watchlist helps investors stay ready for opportunities without impulsive buying. **How to Build It:** • Identify quality companies you understand. • Record key metrics: P/E, ROE, Debt, Cash Flow, Intrinsic Value. • Set a 'target buy price' — often below fair value for a margin of safety. **Tracking Investments:** • Review quarterly results and annual reports. • Track management commentary and new developments. • Avoid reacting to short-term volatility — focus on fundamentals."
+
+      }
+    ]
+    }
