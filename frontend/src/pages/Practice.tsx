@@ -259,7 +259,7 @@ const Practice = () => {
               <Award className="w-6 h-6 text-primary" />
               <h3 className="font-heading font-bold text-xl text-foreground">Practice Results</h3>
             </div>
-            <p className="text-foreground">You scored <span className="font-stats font-semibold text-primary">{result.score}/10</span>.</p>
+            <p className="text-foreground">You scored <span className="font-stats font-semibold text-primary">{result.score}/100</span>.</p>
             {typeof result.xp === 'number' && typeof result.coins === 'number' && (
               <div className="flex gap-3">
                 <span className="text-sm font-stats font-semibold text-secondary bg-secondary/10 px-3 py-1.5 rounded-lg">+{result.xp} XP</span>
