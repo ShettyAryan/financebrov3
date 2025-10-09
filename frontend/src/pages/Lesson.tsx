@@ -41,9 +41,34 @@ const Lesson = () => {
   // Helpers
   const renderMultiline = (text?: string) => {
     if (!text) return null;
-    return text.split('\n').map((line, idx) => (
-      <p key={idx} className="text-foreground leading-relaxed whitespace-pre-wrap">{line}</p>
-    ));
+    return text.split('\n').map((line, idx) => {
+      // Handle bullet points and formatting
+      if (line.trim().startsWith('•')) {
+        return (
+          <div key={idx} className="flex items-start gap-2">
+            <span className="text-primary mt-1">•</span>
+            <p className="text-foreground leading-relaxed flex-1">{line.replace('•', '').trim()}</p>
+          </div>
+        );
+      }
+      // Handle bold text
+      if (line.includes('**')) {
+        const parts = line.split('**');
+        return (
+          <p key={idx} className="text-foreground leading-relaxed">
+            {parts.map((part, i) => 
+              i % 2 === 1 ? <strong key={i} className="font-semibold">{part}</strong> : part
+            )}
+          </p>
+        );
+      }
+      // Regular line
+      return (
+        <p key={idx} className="text-foreground leading-relaxed whitespace-pre-wrap">
+          {line || '\u00A0'} {/* Non-breaking space for empty lines */}
+        </p>
+      );
+    });
   };
 
   const handleSubmitQuestion = () => {
@@ -152,10 +177,10 @@ const Lesson = () => {
               <h2 className="font-heading font-bold text-xl text-foreground">
                 {introSection?.title || 'Concept'}
               </h2>
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {Array.isArray(introSection?.body)
                   ? (introSection?.body as string[]).map((t, i) => (
-                      <p key={i} className="text-foreground leading-relaxed whitespace-pre-wrap">{t}</p>
+                      <div key={i}>{renderMultiline(t)}</div>
                     ))
                   : renderMultiline(introSection?.body as string)}
               </div>
@@ -178,10 +203,10 @@ const Lesson = () => {
                 {exampleSection?.title || 'Example'}
               </h2>
               <div className="bg-secondary/5 border border-secondary/20 rounded-xl p-4 space-y-3">
-                <div className="space-y-2">
+                <div className="space-y-3">
                   {Array.isArray(exampleSection?.body)
                     ? (exampleSection?.body as string[]).map((t, i) => (
-                        <p key={i} className="text-foreground font-medium whitespace-pre-wrap">{t}</p>
+                        <div key={i}>{renderMultiline(t)}</div>
                       ))
                     : renderMultiline(exampleSection?.body as string)}
                 </div>

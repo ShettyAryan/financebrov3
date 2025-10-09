@@ -50,14 +50,18 @@ export const seedLessons = asyncHandler(async (req, res) => {
               },
               {
                 id: "q2",
-                format: "input",
-                inputType: "text",
+                format: "mcq",
                 prompt:
-                  "Name one key difference between fundamental and technical analysis.",
-                answer:
-                  "Fundamental analysis studies company performance while technical analysis studies price trends.",
+                  "What is the main difference between fundamental and technical analysis?",
+                options: [
+                  "Fundamental focuses on company performance; technical focuses on price charts",
+                  "Both study only past prices",
+                  "Technical focuses on management quality",
+                  "Fundamental focuses on investor emotions",
+                ],
+                answer: 0,
                 solution_explanation:
-                  "Fundamental analysis focuses on intrinsic value; technical analysis focuses on market behavior and charts.",
+                  "Fundamental analysis studies a company’s financials and value, while technical analysis studies market price trends and patterns.",
               },
               {
                 id: "q3",
@@ -119,13 +123,18 @@ export const seedLessons = asyncHandler(async (req, res) => {
               },
               {
                 id: "q2",
-                format: "input",
-                inputType: "text",
+                format: "mcq",
                 prompt:
-                  "Fill in the blank: Value is what you ____ for, price is what you ___.",
-                answer: "get, pay",
+                  "According to Warren Buffett’s saying, which statement best describes the difference between value and price?",
+                options: [
+                  "Price is what you pay; value is what you get",
+                  "Value is what you pay; price is what you get",
+                  "Both mean the same thing",
+                  "Price only matters for short-term trading",
+                ],
+                answer: 0,
                 solution_explanation:
-                  "Warren Buffett’s famous quote: “Price is what you pay; value is what you get.” It highlights the difference between market price and true worth.",
+                  "Warren Buffett’s quote — 'Price is what you pay; value is what you get' — explains that market price and real worth are not always equal.",
               },
               {
                 id: "q3",
@@ -186,13 +195,18 @@ export const seedLessons = asyncHandler(async (req, res) => {
               },
               {
                 id: "q2",
-                format: "input",
-                inputType: "text",
+                format: "mcq",
                 prompt:
-                  "Name one common quantitative metric used in fundamental analysis.",
-                answer: "Earnings Per Share",
+                  "Which of the following is a common quantitative metric used in fundamental analysis?",
+                options: [
+                  "Earnings Per Share (EPS)",
+                  "Brand Loyalty",
+                  "Management Integrity",
+                  "Company Mission Statement",
+                ],
+                answer: 0,
                 solution_explanation:
-                  "Quantitative metrics include financial ratios like EPS, ROE, or Profit Margin — all based on data.",
+                  "Quantitative metrics are number-based (e.g., EPS, ROE, Profit Margin). EPS is a standard quantitative metric; the other options are qualitative.",
               },
               {
                 id: "q3",
@@ -254,13 +268,18 @@ export const seedLessons = asyncHandler(async (req, res) => {
               },
               {
                 id: "q2",
-                format: "input",
-                inputType: "text",
+                format: "mcq",
                 prompt:
-                  "Fill in: Netflix’s main revenue model is based on ______ subscriptions.",
-                answer: "streaming",
+                  "Netflix’s main revenue model is based on what type of service?",
+                options: [
+                  "Advertising",
+                  "Streaming subscriptions",
+                  "Hardware sales",
+                  "Ticket bookings",
+                ],
+                answer: 1,
                 solution_explanation:
-                  "Netflix earns revenue through monthly streaming subscriptions paid by its users.",
+                  "Netflix earns revenue primarily through monthly streaming subscriptions paid by users.",
               },
               {
                 id: "q3",
@@ -317,13 +336,18 @@ export const seedLessons = asyncHandler(async (req, res) => {
               },
               {
                 id: "q2",
-                format: "input",
-                inputType: "text",
+                format: "mcq",
                 prompt:
-                  "Name one industry currently in the 'growth' phase in India.",
-                answer: "Electric vehicles",
+                  "Which of the following industries in India is currently in the growth phase?",
+                options: [
+                  "Coal mining",
+                  "Electric vehicles (EVs)",
+                  "Typewriter manufacturing",
+                  "Landline telephony",
+                ],
+                answer: 1,
                 solution_explanation:
-                  "EVs, renewable energy, and fintech are examples of fast-growing industries in India.",
+                  "Electric vehicles, renewable energy, and fintech are in the rapid expansion or growth phase in India.",
               },
               {
                 id: "q3",
@@ -376,17 +400,22 @@ export const seedLessons = asyncHandler(async (req, res) => {
                 ],
                 answer: 1,
                 solution_explanation:
-                  "Patents prevent competitors from copying products, giving durable advantage.",
+                  "Patents prevent competitors from copying products, giving a durable competitive advantage.",
               },
               {
                 id: "q2",
-                format: "input",
-                inputType: "text",
+                format: "mcq",
                 prompt:
-                  "Fill in the blank: A company with strong customer loyalty and brand recognition has a ______ moat.",
-                answer: "brand",
+                  "A company with strong customer loyalty and brand recognition has which type of moat?",
+                options: [
+                  "Brand moat",
+                  "Cost moat",
+                  "Network moat",
+                  "Geographic moat",
+                ],
+                answer: 0,
                 solution_explanation:
-                  "Customer trust and recognition create a brand moat that keeps competitors away.",
+                  "Customer trust and recognition create a **brand moat**, which keeps competitors away and maintains pricing power.",
               },
               {
                 id: "q3",
@@ -447,13 +476,18 @@ export const seedLessons = asyncHandler(async (req, res) => {
               },
               {
                 id: "q2",
-                format: "input",
-                inputType: "text",
+                format: "mcq",
                 prompt:
-                  "Name one industry where the threat of new entrants is low due to high capital needs.",
-                answer: "Airlines",
+                  "In which of the following industries is the threat of new entrants LOW due to high capital requirements?",
+                options: [
+                  "Airlines",
+                  "Restaurants",
+                  "Online tutoring",
+                  "Retail clothing",
+                ],
+                answer: 0,
                 solution_explanation:
-                  "Airlines, oil refining, and telecom require huge investments, limiting new entrants.",
+                  "Airlines, oil refining, and telecom need massive investments in infrastructure — deterring new competitors.",
               },
               {
                 id: "q3",
@@ -531,12 +565,13 @@ export const seedLessons = asyncHandler(async (req, res) => {
               },
               {
                 id: "q2",
-                format: "input",
-                inputType: "number",
+                format: "mcq",
                 prompt:
-                  "Revenue ₹800 cr, COGS ₹500 cr, Operating Exp ₹200 cr, Interest+Tax ₹50 cr. Find Net Income (₹ cr).",
-                answer: 50,
-                solution_explanation: "800−500−200−50 = ₹50 cr Net Income.",
+                  "A company reports Revenue ₹800 cr, COGS ₹500 cr, Operating Expenses ₹200 cr, and Interest+Tax ₹50 cr. What is its Net Income?",
+                options: ["₹50 cr", "₹100 cr", "₹150 cr", "₹200 cr"],
+                answer: 0,
+                solution_explanation:
+                  "Net Income = 800 − 500 − 200 − 50 = ₹50 cr. It’s the profit after all costs and taxes are deducted.",
               },
               {
                 id: "q3",
@@ -607,12 +642,13 @@ export const seedLessons = asyncHandler(async (req, res) => {
               },
               {
                 id: "q2",
-                format: "input",
-                inputType: "number",
+                format: "mcq",
                 prompt:
-                  "Assets ₹500 cr, Liabilities ₹320 cr. Find Equity (₹ cr).",
-                answer: 180,
-                solution_explanation: "Equity = 500−320 = ₹180 cr.",
+                  "If a company has Assets worth ₹500 cr and Liabilities worth ₹320 cr, what is its Equity?",
+                options: ["₹820 cr", "₹180 cr", "₹320 cr", "₹500 cr"],
+                answer: 1,
+                solution_explanation:
+                  "Equity = Assets − Liabilities = 500 − 320 = ₹180 cr.",
               },
               {
                 id: "q3",
@@ -681,16 +717,18 @@ export const seedLessons = asyncHandler(async (req, res) => {
                   "Financing Activity",
                 ],
                 answer: 1,
-                solution_explanation: "Buying assets is an investing activity.",
+                solution_explanation:
+                  "Buying assets like machinery or equipment is considered an investing activity.",
               },
               {
                 id: "q2",
-                format: "input",
-                inputType: "number",
+                format: "mcq",
                 prompt:
-                  "Operating CF ₹400 cr, CapEx ₹250 cr. Find Free Cash Flow (₹ cr).",
-                answer: 150,
-                solution_explanation: "FCF = 400 − 250 = ₹150 cr.",
+                  "A company reports Operating Cash Flow ₹400 cr and Capital Expenditure (CapEx) ₹250 cr. What is its Free Cash Flow?",
+                options: ["₹150 cr", "₹250 cr", "₹400 cr", "₹650 cr"],
+                answer: 0,
+                solution_explanation:
+                  "Free Cash Flow = Operating Cash Flow − CapEx = 400 − 250 = ₹150 cr.",
               },
               {
                 id: "q3",
@@ -704,7 +742,7 @@ export const seedLessons = asyncHandler(async (req, res) => {
                 ],
                 answer: 0,
                 solution_explanation:
-                  "High receivables reduce cash inflow even when profits look good.",
+                  "When receivables rise (customers pay later), cash flow drops even if profits look strong.",
               },
             ],
           },
@@ -755,17 +793,23 @@ export const seedLessons = asyncHandler(async (req, res) => {
                   "Which item from the income statement feeds into retained earnings on the balance sheet?",
                 options: ["Revenue", "Net Income", "Operating Expense"],
                 answer: 1,
-                solution_explanation: "Net Income increases Retained Earnings.",
+                solution_explanation:
+                  "Net Income from the income statement increases Retained Earnings in the balance sheet.",
               },
               {
                 id: "q2",
-                format: "input",
-                inputType: "text",
+                format: "mcq",
                 prompt:
-                  "When profits are kept instead of paid as dividends, which balance-sheet section grows?",
-                answer: "retained earnings",
+                  "When a company keeps its profits instead of paying dividends, which section of the balance sheet grows?",
+                options: [
+                  "Retained Earnings",
+                  "Liabilities",
+                  "Inventory",
+                  "Accounts Payable",
+                ],
+                answer: 0,
                 solution_explanation:
-                  "Undistributed profits accumulate as Retained Earnings in Equity.",
+                  "Undistributed profits accumulate in the Equity section as Retained Earnings.",
               },
               {
                 id: "q3",
@@ -779,7 +823,7 @@ export const seedLessons = asyncHandler(async (req, res) => {
                 ],
                 answer: 0,
                 solution_explanation:
-                  "Depreciation lowers accounting profit but no cash goes out, so it’s added back in cash flow.",
+                  "Depreciation lowers accounting profit but doesn’t reduce cash — so it’s added back in the cash flow statement.",
               },
             ],
           },
@@ -851,12 +895,13 @@ export const seedLessons = asyncHandler(async (req, res) => {
               },
               {
                 id: "q2",
-                format: "input",
-                inputType: "number",
+                format: "mcq",
                 prompt:
-                  "A company has Net Income ₹60 crore and Equity ₹300 crore. What is ROE (%)? (Answer as a number only, e.g., 20 for 20%)",
-                answer: 20,
-                solution_explanation: "ROE = 60 ÷ 300 = 0.20 = 20%.",
+                  "A company reports Net Income ₹60 crore and Equity ₹300 crore. What is its Return on Equity (ROE)?",
+                options: ["10%", "15%", "20%", "25%"],
+                answer: 2,
+                solution_explanation:
+                  "ROE = Net Income ÷ Equity = 60 ÷ 300 = 0.20 = 20%. A higher ROE indicates more efficient use of shareholders’ capital.",
               },
               {
                 id: "q3",
@@ -923,12 +968,13 @@ export const seedLessons = asyncHandler(async (req, res) => {
               },
               {
                 id: "q2",
-                format: "input",
-                inputType: "number",
+                format: "mcq",
                 prompt:
-                  "Current Assets ₹450 crore; Current Liabilities ₹225 crore. Current Ratio = ?",
+                  "A company has Current Assets of ₹450 crore and Current Liabilities of ₹225 crore. What is its Current Ratio?",
+                options: ["1.0", "1.5", "2.0", "3.0"],
                 answer: 2,
-                solution_explanation: "Current Ratio = 450 ÷ 225 = 2.0.",
+                solution_explanation:
+                  "Current Ratio = Current Assets ÷ Current Liabilities = 450 ÷ 225 = 2.0. It shows the firm can pay off liabilities twice over.",
               },
               {
                 id: "q3",
@@ -994,16 +1040,17 @@ export const seedLessons = asyncHandler(async (req, res) => {
                 ],
                 answer: 1,
                 solution_explanation:
-                  "Interest Coverage = EBIT ÷ Interest Expense shows how easily interest is serviced.",
+                  "Interest Coverage = EBIT ÷ Interest Expense shows how easily a company can service its interest payments.",
               },
               {
                 id: "q2",
-                format: "input",
-                inputType: "number",
+                format: "mcq",
                 prompt:
-                  "Total Debt ₹900 crore; Equity ₹600 crore. What is D/E?",
-                answer: 1.5,
-                solution_explanation: "D/E = 900 ÷ 600 = 1.5.",
+                  "A company has Total Debt ₹900 crore and Equity ₹600 crore. What is its Debt-to-Equity (D/E) Ratio?",
+                options: ["0.6", "1.0", "1.5", "2.0"],
+                answer: 2,
+                solution_explanation:
+                  "D/E = 900 ÷ 600 = 1.5. This means the company has ₹1.50 of debt for every ₹1 of equity — moderate leverage.",
               },
               {
                 id: "q3",
@@ -1011,9 +1058,9 @@ export const seedLessons = asyncHandler(async (req, res) => {
                 prompt:
                   "EBIT ₹240 crore; Interest Expense ₹80 crore. Interest Coverage = ?",
                 options: ["2×", "3×", "4×"],
-                answer: 2,
+                answer: 1,
                 solution_explanation:
-                  "Interest Coverage = 240 ÷ 80 = 3.0× → choose 3×.",
+                  "Interest Coverage = 240 ÷ 80 = 3.0× → the firm earns 3× its interest cost before taxes.",
               },
             ],
           },
@@ -1073,12 +1120,13 @@ export const seedLessons = asyncHandler(async (req, res) => {
               },
               {
                 id: "q2",
-                format: "input",
-                inputType: "number",
+                format: "mcq",
                 prompt:
-                  "Revenue ₹1,800 crore; Average Assets ₹900 crore. Asset Turnover = ?",
+                  "A company reports Revenue ₹1,800 crore and Average Assets ₹900 crore. What is its Asset Turnover Ratio?",
+                options: ["1.0", "1.5", "2.0", "2.5"],
                 answer: 2,
-                solution_explanation: "Asset Turnover = 1,800 ÷ 900 = 2.0.",
+                solution_explanation:
+                  "Asset Turnover = Revenue ÷ Average Assets = 1,800 ÷ 900 = 2.0. This means the firm generates ₹2 of sales per ₹1 of assets.",
               },
               {
                 id: "q3",
@@ -1087,7 +1135,8 @@ export const seedLessons = asyncHandler(async (req, res) => {
                   "COGS ₹900 crore; Average Inventory ₹300 crore. Inventory Turnover = ?",
                 options: ["2×", "3×", "4×"],
                 answer: 1,
-                solution_explanation: "Inventory Turnover = 900 ÷ 300 = 3×.",
+                solution_explanation:
+                  "Inventory Turnover = 900 ÷ 300 = 3×, showing inventory is sold and replaced three times a year.",
               },
             ],
           },
@@ -1140,17 +1189,17 @@ export const seedLessons = asyncHandler(async (req, res) => {
                 options: ["Overvalued", "Undervalued", "Fairly valued"],
                 answer: 1,
                 solution_explanation:
-                  "Market < Intrinsic ⇒ Undervalued → potentially a buying opportunity.",
+                  "When Market Price < Intrinsic Value, the stock is undervalued — a potential buying opportunity.",
               },
               {
                 id: "q2",
-                format: "input",
-                inputType: "number",
+                format: "mcq",
                 prompt:
-                  "A stock’s intrinsic value ₹900, current price ₹1,200. How much % overvalued is it? (round to nearest 10%)",
-                answer: 33,
+                  "A stock’s intrinsic value is ₹900, and its market price is ₹1,200. By roughly what percentage is it overvalued?",
+                options: ["10%", "20%", "30%", "40%"],
+                answer: 2,
                 solution_explanation:
-                  "Overvalued % = (1,200 − 900) / 900 × 100 ≈ 33 %.",
+                  "Overvalued % = (1,200 − 900) ÷ 900 × 100 = 33% (≈ 30%). The market price is one-third higher than its estimated value.",
               },
               {
                 id: "q3",
@@ -1163,7 +1212,7 @@ export const seedLessons = asyncHandler(async (req, res) => {
                 ],
                 answer: 0,
                 solution_explanation:
-                  "Markets swing on emotions (short term) while value changes slowly with performance.",
+                  "Markets move on short-term emotions like fear and greed, while intrinsic value depends on long-term business performance.",
               },
             ],
           },
@@ -1218,15 +1267,17 @@ export const seedLessons = asyncHandler(async (req, res) => {
                 options: ["P/E", "P/B", "EV/EBITDA"],
                 answer: 2,
                 solution_explanation:
-                  "EV/EBITDA includes debt and cash, so it works better for comparing leveraged companies.",
+                  "EV/EBITDA includes both debt and cash, making it ideal for comparing firms with different leverage levels.",
               },
               {
                 id: "q2",
-                format: "input",
-                inputType: "number",
-                prompt: "Share Price ₹240, EPS ₹12. Find P/E.",
-                answer: 20,
-                solution_explanation: "P/E = 240 ÷ 12 = 20×.",
+                format: "mcq",
+                prompt:
+                  "If a stock trades at ₹240 and its Earnings Per Share (EPS) is ₹12, what is its P/E ratio?",
+                options: ["10×", "15×", "20×", "25×"],
+                answer: 2,
+                solution_explanation:
+                  "P/E = Price ÷ EPS = 240 ÷ 12 = 20×. This means investors pay ₹20 for every ₹1 of earnings.",
               },
               {
                 id: "q3",
@@ -1239,7 +1290,7 @@ export const seedLessons = asyncHandler(async (req, res) => {
                 ],
                 answer: 0,
                 solution_explanation:
-                  "P/B below 1 means market values company below its net assets — could signal cheap or troubled business.",
+                  "A P/B below 1 suggests the market values the company less than its book value — it could be undervalued or facing business issues.",
               },
             ],
           },
@@ -1295,16 +1346,17 @@ export const seedLessons = asyncHandler(async (req, res) => {
                 ],
                 answer: 1,
                 solution_explanation:
-                  "DCF focuses on expected future cash generation and time value of money.",
+                  "DCF (Discounted Cash Flow) values a company by estimating future cash flows and discounting them to present value.",
               },
               {
                 id: "q2",
-                format: "input",
-                inputType: "number",
+                format: "mcq",
                 prompt:
-                  "If next year FCF = ₹110 cr, discount rate 10%. Find PV (₹ cr). (round to 1 decimal)",
-                answer: 100,
-                solution_explanation: "PV = 110 ÷ 1.10 = ₹100 cr (approx).",
+                  "If next year’s Free Cash Flow (FCF) is ₹110 crore and the discount rate is 10%, what is the approximate Present Value (PV)?",
+                options: ["₹90 cr", "₹100 cr", "₹110 cr", "₹121 cr"],
+                answer: 1,
+                solution_explanation:
+                  "PV = 110 ÷ (1 + 0.10) = ₹100 crore (approx). A higher discount rate would lower this value further.",
               },
               {
                 id: "q3",
@@ -1313,7 +1365,7 @@ export const seedLessons = asyncHandler(async (req, res) => {
                 options: ["Increases PV", "Decreases PV", "No effect"],
                 answer: 1,
                 solution_explanation:
-                  "Higher required return reduces the present value of future cash flows.",
+                  "Higher required return (discount rate) reduces the present value of future cash flows.",
               },
             ],
           },
@@ -1368,16 +1420,22 @@ export const seedLessons = asyncHandler(async (req, res) => {
                 ],
                 answer: 1,
                 solution_explanation:
-                  "Relative valuation benchmarks against similar firms via P/E, P/B etc.",
+                  "Relative valuation benchmarks a company against similar peers using ratios like P/E or P/B.",
               },
               {
                 id: "q2",
-                format: "input",
-                inputType: "text",
-                prompt: "Name one method used in absolute valuation.",
-                answer: "discounted cash flow",
+                format: "mcq",
+                prompt:
+                  "Which of the following is an example of an absolute valuation method?",
+                options: [
+                  "Price-to-Earnings (P/E)",
+                  "Enterprise Value to EBITDA (EV/EBITDA)",
+                  "Discounted Cash Flow (DCF)",
+                  "Price-to-Book (P/B)",
+                ],
+                answer: 2,
                 solution_explanation:
-                  "Absolute valuation includes DCF and asset-based approaches.",
+                  "Absolute valuation determines intrinsic value from fundamentals, e.g., through Discounted Cash Flow (DCF) or asset-based valuation.",
               },
               {
                 id: "q3",
@@ -1390,7 +1448,7 @@ export const seedLessons = asyncHandler(async (req, res) => {
                 ],
                 answer: 0,
                 solution_explanation:
-                  "Relative uses market multiples → quick but moves with market sentiment.",
+                  "Relative valuation relies on market multiples, making it quick but sensitive to market sentiment and fluctuations.",
               },
             ],
           },
@@ -1445,17 +1503,17 @@ export const seedLessons = asyncHandler(async (req, res) => {
                 ],
                 answer: 1,
                 solution_explanation:
-                  "Good governance relies on transparency and independence to protect investors.",
+                  "Good governance relies on transparency, independence, and fairness to protect shareholders and maintain trust.",
               },
               {
                 id: "q2",
-                format: "input",
-                inputType: "text",
+                format: "mcq",
                 prompt:
-                  "Fill in: Good management focuses on creating long-term ______ for shareholders.",
-                answer: "value",
+                  "Good management primarily focuses on creating long-term ______ for shareholders.",
+                options: ["Profits", "Value", "Debt", "Stock volatility"],
+                answer: 1,
                 solution_explanation:
-                  "Strong leaders prioritize sustainable value creation, not short-term stock moves.",
+                  "Strong management aims to build sustainable long-term **value** for shareholders rather than chasing short-term stock movements.",
               },
               {
                 id: "q3",
@@ -1469,7 +1527,7 @@ export const seedLessons = asyncHandler(async (req, res) => {
                 ],
                 answer: 1,
                 solution_explanation:
-                  "Public investors cannot oversee daily operations, so they depend on honest, transparent governance.",
+                  "Public investors cannot oversee daily operations, so they rely on management honesty, transparency, and accountability.",
               },
             ],
           },
@@ -1523,17 +1581,22 @@ export const seedLessons = asyncHandler(async (req, res) => {
                 ],
                 answer: 1,
                 solution_explanation:
-                  "In a network moat, each new user adds value for others, strengthening dominance.",
+                  "In a network moat, each new user adds value for others, strengthening the company's dominance.",
               },
               {
                 id: "q2",
-                format: "input",
-                inputType: "text",
+                format: "mcq",
                 prompt:
-                  "Name one Indian company known for strong brand loyalty.",
-                answer: "Hindustan Unilever",
+                  "Which of the following Indian companies is best known for strong brand loyalty?",
+                options: [
+                  "Hindustan Unilever (HUL)",
+                  "Oil and Natural Gas Corporation (ONGC)",
+                  "Indian Railways",
+                  "Power Grid Corporation",
+                ],
+                answer: 0,
                 solution_explanation:
-                  "HUL has iconic household brands trusted for quality and consistency.",
+                  "Hindustan Unilever (HUL) has built iconic brands like Surf Excel and Dove, earning decades of consumer trust and loyalty.",
               },
               {
                 id: "q3",
@@ -1547,7 +1610,7 @@ export const seedLessons = asyncHandler(async (req, res) => {
                 ],
                 answer: 1,
                 solution_explanation:
-                  "Brand trust allows premium pricing and repeat purchases, boosting margins.",
+                  "Brand trust enables premium pricing and consistent demand, resulting in higher profit margins.",
               },
             ],
           },
@@ -1599,17 +1662,22 @@ export const seedLessons = asyncHandler(async (req, res) => {
                 options: ["Cheaper", "Costlier", "Unchanged"],
                 answer: 1,
                 solution_explanation:
-                  "Higher rates raise loan costs and can reduce company expansion plans.",
+                  "Higher interest rates increase loan costs and can reduce company expansion plans.",
               },
               {
                 id: "q2",
-                format: "input",
-                inputType: "text",
+                format: "mcq",
                 prompt:
-                  "Name one government action that can positively affect renewable-energy companies.",
-                answer: "subsidy",
+                  "Which government action can positively impact renewable-energy companies?",
+                options: [
+                  "Higher import duties on solar panels",
+                  "Subsidies or tax incentives",
+                  "Increased fuel taxes",
+                  "Interest rate hikes",
+                ],
+                answer: 1,
                 solution_explanation:
-                  "Subsidies or tax incentives encourage renewable-energy investment.",
+                  "Government subsidies or tax breaks encourage investment and growth in renewable-energy sectors like solar and wind.",
               },
               {
                 id: "q3",
@@ -1623,7 +1691,7 @@ export const seedLessons = asyncHandler(async (req, res) => {
                 ],
                 answer: 0,
                 solution_explanation:
-                  "Higher inflation raises input prices, squeezing profits unless companies can pass on costs.",
+                  "Higher inflation raises input prices, squeezing profits unless companies can pass costs to customers.",
               },
             ],
           },
@@ -1679,17 +1747,22 @@ export const seedLessons = asyncHandler(async (req, res) => {
                 ],
                 answer: 1,
                 solution_explanation:
-                  "Rising receivables without matching sales often indicate fake or delayed collections.",
+                  "Rising receivables without matching sales often indicate fake or delayed collections — a possible sign of manipulation.",
               },
               {
                 id: "q2",
-                format: "input",
-                inputType: "text",
+                format: "mcq",
                 prompt:
-                  "Name one behavior that might signal poor corporate governance.",
-                answer: "frequent auditor changes",
+                  "Which of the following behaviors might signal poor corporate governance?",
+                options: [
+                  "Frequent auditor changes",
+                  "Consistent dividend payouts",
+                  "Transparent financial disclosures",
+                  "Independent board oversight",
+                ],
+                answer: 0,
                 solution_explanation:
-                  "Changing auditors repeatedly may hide financial irregularities.",
+                  "Frequent auditor changes may suggest management is avoiding scrutiny or hiding irregularities — a classic governance red flag.",
               },
               {
                 id: "q3",
@@ -1702,7 +1775,7 @@ export const seedLessons = asyncHandler(async (req, res) => {
                 ],
                 answer: 1,
                 solution_explanation:
-                  "Spotting red flags helps investors avoid risky or dishonest companies before losses occur.",
+                  "Spotting red flags early helps investors avoid risky or dishonest companies before major financial losses occur.",
               },
             ],
           },
@@ -1756,17 +1829,22 @@ export const seedLessons = asyncHandler(async (req, res) => {
                 ],
                 answer: 1,
                 solution_explanation:
-                  "Higher rates increase loan costs, reducing borrowing and expansion.",
+                  "Higher interest rates increase borrowing costs, often slowing expansion and investment.",
               },
               {
                 id: "q2",
-                format: "input",
-                inputType: "text",
+                format: "mcq",
                 prompt:
-                  "If inflation rises sharply, people’s purchasing power generally ______.",
-                answer: "decreases",
+                  "If inflation rises sharply, what usually happens to people’s purchasing power?",
+                options: [
+                  "It increases",
+                  "It decreases",
+                  "It remains the same",
+                  "It depends on GDP",
+                ],
+                answer: 1,
                 solution_explanation:
-                  "When prices rise faster than income, purchasing power falls.",
+                  "When prices rise faster than incomes, purchasing power falls — people can buy fewer goods with the same money.",
               },
               {
                 id: "q3",
@@ -1780,7 +1858,7 @@ export const seedLessons = asyncHandler(async (req, res) => {
                 ],
                 answer: 0,
                 solution_explanation:
-                  "Steady GDP growth indicates a healthy economy and potential profit growth.",
+                  "Consistent GDP growth reflects a strong, expanding economy where companies and jobs typically grow.",
               },
             ],
           },
@@ -1833,16 +1911,17 @@ export const seedLessons = asyncHandler(async (req, res) => {
                 options: ["Automobiles", "Hotels", "FMCG"],
                 answer: 2,
                 solution_explanation:
-                  "FMCG demand is steady — even in recessions people buy everyday goods.",
+                  "FMCG (Fast-Moving Consumer Goods) is defensive because people continue buying essential goods even during downturns.",
               },
               {
                 id: "q2",
-                format: "input",
-                inputType: "text",
-                prompt: "Name one example of a cyclical sector.",
-                answer: "automobile",
+                format: "mcq",
+                prompt:
+                  "Which of the following is an example of a cyclical sector?",
+                options: ["Automobile", "Pharmaceuticals", "Utilities", "FMCG"],
+                answer: 0,
                 solution_explanation:
-                  "Auto sales rise in good times and fall during economic slowdowns.",
+                  "Automobiles, real estate, and luxury goods are cyclical — their sales rise in booms and drop during recessions.",
               },
               {
                 id: "q3",
@@ -1856,7 +1935,7 @@ export const seedLessons = asyncHandler(async (req, res) => {
                 ],
                 answer: 1,
                 solution_explanation:
-                  "Defensive sectors like healthcare or FMCG maintain stable demand.",
+                  "Defensive sectors like FMCG and healthcare maintain demand even in economic slowdowns, offering stability to investors.",
               },
             ],
           },
@@ -1907,17 +1986,22 @@ export const seedLessons = asyncHandler(async (req, res) => {
                 options: ["Oil exploration", "Airlines", "Energy producers"],
                 answer: 1,
                 solution_explanation:
-                  "Airlines’ fuel costs rise sharply when crude prices increase, reducing profits.",
+                  "Airlines’ fuel expenses rise sharply when crude oil prices increase, reducing profit margins.",
               },
               {
                 id: "q2",
-                format: "input",
-                inputType: "text",
+                format: "mcq",
                 prompt:
-                  "If the US Federal Reserve raises interest rates, what typically happens to emerging market currencies?",
-                answer: "they weaken",
+                  "When the US Federal Reserve raises interest rates, what usually happens to emerging market currencies?",
+                options: [
+                  "They strengthen",
+                  "They weaken",
+                  "They remain stable",
+                  "They appreciate temporarily",
+                ],
+                answer: 1,
                 solution_explanation:
-                  "Capital flows toward higher US returns, reducing demand for emerging currencies.",
+                  "Higher US rates attract global capital toward the US, reducing demand for emerging market currencies — causing them to weaken.",
               },
               {
                 id: "q3",
@@ -1930,7 +2014,7 @@ export const seedLessons = asyncHandler(async (req, res) => {
                 ],
                 answer: 0,
                 solution_explanation:
-                  "Trade wars disrupt supply chains, reducing international trade.",
+                  "Trade wars disrupt supply chains and reduce global trade volumes due to higher tariffs and uncertainty.",
               },
             ],
           },
@@ -1992,17 +2076,17 @@ export const seedLessons = asyncHandler(async (req, res) => {
                 ],
                 answer: 2,
                 solution_explanation:
-                  "No one can consistently predict daily stock prices — investing focuses on fundamentals.",
+                  "No one can reliably predict daily stock prices — investing focuses on long-term fundamentals.",
               },
               {
                 id: "q2",
-                format: "input",
-                inputType: "text",
+                format: "mcq",
                 prompt:
-                  "Fill in: A checklist helps reduce ______ decisions and maintain discipline.",
-                answer: "emotional",
+                  "A good investment checklist helps reduce ______ decisions and maintain discipline.",
+                options: ["Emotional", "Financial", "Technical", "Legal"],
+                answer: 0,
                 solution_explanation:
-                  "It prevents emotional biases like fear or greed from driving decisions.",
+                  "Checklists reduce emotional decisions — preventing fear or greed from influencing investment choices.",
               },
               {
                 id: "q3",
@@ -2016,7 +2100,7 @@ export const seedLessons = asyncHandler(async (req, res) => {
                 ],
                 answer: 0,
                 solution_explanation:
-                  "Financial ratios like D/E and cash flow show how stable a company is financially.",
+                  "Debt-to-Equity and Cash Flow ratios reveal a company's ability to manage obligations and sustain operations.",
               },
             ],
           },
@@ -2073,23 +2157,28 @@ export const seedLessons = asyncHandler(async (req, res) => {
                 ],
                 answer: 1,
                 solution_explanation:
-                  "Apple’s ecosystem (hardware + software + services) builds deep customer loyalty.",
+                  "Apple’s ecosystem of devices, software, and services creates strong customer loyalty and pricing power.",
               },
               {
                 id: "q2",
-                format: "input",
-                inputType: "text",
+                format: "mcq",
                 prompt:
-                  "Name one risk that even a great company like Apple faces.",
-                answer: "supply chain disruption",
+                  "Which of the following is a major risk that even a great company like Apple can face?",
+                options: [
+                  "Supply chain disruption",
+                  "Too much customer loyalty",
+                  "Falling inflation",
+                  "Lack of brand awareness",
+                ],
+                answer: 0,
                 solution_explanation:
-                  "Even strong firms face risks from external events like supply shortages or regulations.",
+                  "Even strong companies face risks like supply chain disruptions, regulatory challenges, or shifting consumer demand.",
               },
               {
                 id: "q3",
                 format: "mixed",
                 prompt:
-                  "If an investor finds a company with strong moat, rising profits, and fair valuation, the likely action is:",
+                  "If an investor finds a company with a strong moat, rising profits, and fair valuation, the likely action is:",
                 options: [
                   "Consider it for long-term investment",
                   "Avoid it completely",
@@ -2097,7 +2186,7 @@ export const seedLessons = asyncHandler(async (req, res) => {
                 ],
                 answer: 0,
                 solution_explanation:
-                  "Strong fundamentals and fair value make it a potential long-term investment.",
+                  "When a company has sustainable advantages and fair pricing, it often signals a good long-term investment opportunity.",
               },
             ],
           },
@@ -2155,16 +2244,17 @@ export const seedLessons = asyncHandler(async (req, res) => {
                 ],
                 answer: 1,
                 solution_explanation:
-                  "Buying below true value creates a cushion against potential mistakes.",
+                  "Buying below intrinsic value creates a safety cushion against estimation errors or market volatility.",
               },
               {
                 id: "q2",
-                format: "input",
-                inputType: "number",
+                format: "mcq",
                 prompt:
-                  "Intrinsic Value ₹600, Market Price ₹480. Find Margin of Safety (%).",
-                answer: 20,
-                solution_explanation: "Margin = (600−480)/600×100 = 20%.",
+                  "If a stock’s intrinsic value is ₹600 and its market price is ₹480, what is the Margin of Safety (%)?",
+                options: ["10%", "15%", "20%", "25%"],
+                answer: 2,
+                solution_explanation:
+                  "Margin of Safety = (Intrinsic Value − Market Price) ÷ Intrinsic Value × 100 = (600 − 480) ÷ 600 × 100 = 20%.",
               },
               {
                 id: "q3",
@@ -2174,7 +2264,7 @@ export const seedLessons = asyncHandler(async (req, res) => {
                 options: ["Zero", "Ten percent", "Infinite"],
                 answer: 0,
                 solution_explanation:
-                  "Paying intrinsic value means no margin of safety — no cushion for error.",
+                  "Paying intrinsic value means there’s no discount — hence, no margin of safety or buffer against mistakes.",
               },
             ],
           },
@@ -2232,17 +2322,22 @@ export const seedLessons = asyncHandler(async (req, res) => {
                 ],
                 answer: 1,
                 solution_explanation:
-                  "A watchlist keeps investors patient and ready for value opportunities.",
+                  "A watchlist helps investors track quality companies and act when prices fall to attractive levels — promoting patience and discipline.",
               },
               {
                 id: "q2",
-                format: "input",
-                inputType: "text",
+                format: "mcq",
                 prompt:
-                  "Fill in: Long-term investors should focus on company ______, not short-term price movements.",
-                answer: "fundamentals",
+                  "Long-term investors should focus on company ______, not short-term price movements.",
+                options: [
+                  "Headlines",
+                  "Fundamentals",
+                  "Rumors",
+                  "Market gossip",
+                ],
+                answer: 1,
                 solution_explanation:
-                  "Focusing on fundamentals ensures you invest based on business performance, not emotion.",
+                  "Focusing on fundamentals — profits, management, cash flow — keeps decisions rational and long-term oriented.",
               },
               {
                 id: "q3",
@@ -2256,7 +2351,7 @@ export const seedLessons = asyncHandler(async (req, res) => {
                 ],
                 answer: 1,
                 solution_explanation:
-                  "Quarterly tracking helps stay updated without emotional overtrading.",
+                  "Quarterly or event-based reviews help investors stay informed without emotional overtrading or panic selling.",
               },
             ],
           },
