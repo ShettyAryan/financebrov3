@@ -7,12 +7,36 @@ import { useUserProgressSummary } from "@/hooks/useApi";
 import { useProgress } from "@/hooks/useApi";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/contexts/AuthContext";
+import { useState, useMemo } from "react";
+import { useUpdateUser } from "@/hooks/useApi";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 const Profile = () => {
   const { isAuthenticated } = useAuth();
-  const { data: user, isLoading: userLoading, error: userError } = useUser();
-  const { data: summary, isLoading: summaryLoading, error: summaryError } = useUserProgressSummary();
+  const { data: user, isLoading: userLoading } = useUser();
+  const { data: summary, isLoading: summaryLoading } = useUserProgressSummary();
   const { data: progressData, isLoading: progressLoading, error: progressError } = useProgress({ status: 'completed', limit: 5 });
+  const updateUserMutation = useUpdateUser();
+
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [usernameInput, setUsernameInput] = useState<string>("");
+  const [emailInput, setEmailInput] = useState<string>("");
+
+  const emailValid = useMemo(() => {
+    if (!emailInput) return false;
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
+    return regex.test(emailInput);
+  }, [emailInput]);
+
+  const canSave = useMemo(() => {
+    const nameChanged = usernameInput && usernameInput !== user?.username;
+    const emailChanged = emailInput && emailInput !== user?.email;
+    if (!nameChanged && !emailChanged) return false;
+    if (emailChanged && !emailValid) return false;
+    return true;
+  }, [usernameInput, emailInput, user, emailValid]);
 
   const xp = user?.xp || 0;
   const coins = user?.coins || 0;
@@ -66,7 +90,6 @@ const Profile = () => {
                     </span>
                   </div>
                 </div>
-                
                 {/* Level Progress */}
                 <div className="space-y-1">
                   <div className="flex justify-between text-xs">
@@ -95,7 +118,7 @@ const Profile = () => {
                 <Skeleton className="h-16" />
               </div>
             ) : (
-              <StatsDisplay name={name} level={level} streak={streak} xp={xp} coins={coins} xpToNextLevel={xpToNextLevel} />
+              <StatsDisplay streak={streak} xp={xp} coins={coins} />
             )}
           </div>
         </div>
@@ -190,7 +213,16 @@ const Profile = () => {
 
         {/* Actions */}
         <div className="space-y-3 pt-4">
-          <Button variant="outline" size="lg" className="w-full">
+          <Button
+            variant="outline"
+            size="lg"
+            className="w-full"
+            onClick={() => {
+              setUsernameInput(user?.username || "");
+              setEmailInput(user?.email || "");
+              setIsEditOpen(true);
+            }}
+          >
             Edit Profile
           </Button>
           <Button variant="ghost" size="lg" className="w-full text-muted-foreground">
@@ -199,10 +231,69 @@ const Profile = () => {
         </div>
       </div>
 
+      {/* Edit Profile Dialog */}
+      <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Profile</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 pt-2">
+            <div className="space-y-2">
+              <Label htmlFor="username">Username</Label>
+              <Input
+                id="username"
+                value={usernameInput}
+                onChange={(e) => setUsernameInput(e.target.value)}
+                placeholder="Your name"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                value={emailInput}
+                onChange={(e) => setEmailInput(e.target.value)}
+                placeholder="you@example.com"
+              />
+              {!emailValid && emailInput && (
+                <p className="text-xs text-destructive">Please enter a valid email address.</p>
+              )}
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="ghost"
+              onClick={() => setIsEditOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={async () => {
+                // TanStack v5 exposes status instead of isLoading; use mutateAsync and disable while pending
+                if (!canSave || updateUserMutation.status === 'pending') return;
+                try {
+                  await updateUserMutation.mutateAsync({
+                    username: usernameInput !== user?.username ? usernameInput : undefined,
+                    email: emailInput !== user?.email ? emailInput : undefined,
+                  });
+                  setIsEditOpen(false);
+                } catch (e) {
+                  // no-op; error toast handled in mutation onError
+                }
+              }}
+              disabled={!canSave || updateUserMutation.status === 'pending'}
+            >
+              {updateUserMutation.status === 'pending' ? 'Saving...' : 'Save changes'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <BottomNav />
     </div>
   );
-};
+}
 
 function StatCard({ label, value, color }: { label: string; value: string | number; color: string }) {
   return (

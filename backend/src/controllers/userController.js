@@ -108,7 +108,7 @@ export const loginUser = asyncHandler(async (req, res) => {
   // Find user by email (use admin client to bypass RLS)
   const { data: user, error } = await supabaseAdmin
     .from('users')
-    .select('id, username, email, password_hash, xp, coins, streak, created_at')
+    .select('id, username, email, password_hash, xp, coins, streak, created_at, updated_at')
     .eq('email', email)
     .single();
 
@@ -142,19 +142,53 @@ export const loginUser = asyncHandler(async (req, res) => {
     });
   }
 
+  // Update streak based on time since last activity (using updated_at as proxy)
+  let updatedUser = user;
+  try {
+    const now = new Date();
+    const lastActivity = user.updated_at ? new Date(user.updated_at) : null;
+    let newStreak = user.streak || 0;
+
+    if (lastActivity) {
+      const hoursSince = Math.abs(now.getTime() - lastActivity.getTime()) / (1000 * 60 * 60);
+      if (hoursSince >= 24 && hoursSince < 48) {
+        newStreak = (user.streak || 0) + 1;
+      } else if (hoursSince >= 48) {
+        newStreak = 0;
+      }
+    } else {
+      newStreak = Math.max(user.streak || 0, 1);
+    }
+
+    if (newStreak !== user.streak) {
+      const { data: upd, error: updErr } = await supabaseAdmin
+        .from('users')
+        .update({ streak: newStreak })
+        .eq('id', user.id)
+        .select('id, username, email, xp, coins, streak, created_at')
+        .single();
+      if (!updErr && upd) {
+        updatedUser = upd;
+      }
+    }
+  } catch (e) {
+    // Non-fatal; continue login even if streak update fails
+    console.error('Streak update on login failed:', e);
+  }
+
   // Generate JWT token
-  const token = generateToken(user);
+  const token = generateToken(updatedUser);
 
   // Return user data and token
   sendSuccess(res, 'Login successful', {
     user: {
-      id: user.id,
-      username: user.username,
-      email: user.email,
-      xp: user.xp,
-      coins: user.coins,
-      streak: user.streak,
-      createdAt: user.created_at
+      id: updatedUser.id,
+      username: updatedUser.username,
+      email: updatedUser.email,
+      xp: updatedUser.xp,
+      coins: updatedUser.coins,
+      streak: updatedUser.streak,
+      createdAt: updatedUser.created_at
     },
     token
   });

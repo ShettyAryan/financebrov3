@@ -173,22 +173,20 @@ export const updateProgress = asyncHandler(async (req, res) => {
     progressData = updatedProgress;
   }
 
-  // Update user stats if lesson is completed
+  // Update user XP if lesson is completed (streak handled on login only)
   if (status === 'completed' && (isNewRecord || existingProgress.status !== 'completed')) {
-    // Add XP to user
     const { data: user, error: userError } = await supabase
       .from('users')
-      .select('xp, streak')
+      .select('xp')
       .eq('id', userId)
       .single();
 
     if (!userError && user) {
-      const newXp = user.xp + lesson.xp_reward;
-      const newStreak = user.streak + 1; // Increment streak
+      const newXp = (user.xp || 0) + (lesson.xp_reward || 0);
 
       await supabase
         .from('users')
-        .update({ xp: newXp, streak: newStreak })
+        .update({ xp: newXp })
         .eq('id', userId);
     }
   }

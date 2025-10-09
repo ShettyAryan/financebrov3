@@ -110,6 +110,10 @@ class ApiClient {
       const data = await response.json();
 
       if (!response.ok) {
+        if (response.status === 401) {
+          // Auto-logout on unauthorized
+          this.setToken(null);
+        }
         throw new Error(data.message || `HTTP error! status: ${response.status}`);
       }
 
