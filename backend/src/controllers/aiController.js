@@ -1,5 +1,6 @@
 import { sendSuccess, sendError } from '../utils/response.js';
 import { asyncHandler } from '../middleware/errorHandler.js';
+import { config } from '../config/environment.js';
 
 /**
  * Test AI service integration
@@ -93,9 +94,16 @@ export const generatePracticeScenarios = asyncHandler(async (req, res) => {
   const userId = req.user.id;
   const { lessonId, conceptName, lessonContent } = req.body;
 
+  // Check if AI service URL is configured
+  const baseUrl = config.aiService.url;
+  if (!baseUrl) {
+    console.error('AI Service URL not configured. Set PRACTICE_AI_URL or AI_SERVICE_URL environment variable.');
+    return sendError(res, 'AI service not configured', 500);
+  }
+
   try {
-    // Optional Node-side cache can be added here per (userId, lessonId)
-    const baseUrl = process.env.PRACTICE_AI_URL || 'http://localhost:8000';
+    console.log(`Attempting to connect to AI service at: ${baseUrl}/api/practice/generate`);
+    
     const response = await fetch(`${baseUrl}/api/practice/generate`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -106,13 +114,38 @@ export const generatePracticeScenarios = asyncHandler(async (req, res) => {
         lesson_content: lessonContent
       })
     });
-    const data = await response.json();
+
     if (!response.ok) {
-      return sendError(res, data?.detail || 'Failed to generate practice', response.status);
+      const errorText = await response.text();
+      console.error(`AI service error (${response.status}):`, errorText);
+      let errorMessage = 'Failed to generate practice';
+      
+      try {
+        const errorData = JSON.parse(errorText);
+        errorMessage = errorData.detail || errorData.message || errorMessage;
+      } catch {
+        errorMessage = errorText || errorMessage;
+      }
+      
+      return sendError(res, errorMessage, response.status);
     }
+
+    const data = await response.json();
     return sendSuccess(res, 'Practice generated', data);
   } catch (e) {
     console.error('AI generate error:', e);
+    
+    // Provide more specific error messages
+    if (e.code === 'ENOTFOUND') {
+      return sendError(res, 'AI service not reachable - check URL configuration', 500);
+    }
+    if (e.code === 'ECONNREFUSED') {
+      return sendError(res, 'AI service connection refused - service may be down', 500);
+    }
+    if (e.message.includes('fetch')) {
+      return sendError(res, 'Failed to connect to AI service', 500);
+    }
+    
     return sendError(res, 'Failed to generate practice', 500);
   }
 });
@@ -123,8 +156,15 @@ export const generatePracticeScenarios = asyncHandler(async (req, res) => {
 export const evaluatePractice = asyncHandler(async (req, res) => {
   const userId = req.user.id;
   const { lessonId, conceptName, questions, userAnswers } = req.body;
+  
+  // Check if AI service URL is configured
+  const baseUrl = config.aiService.url;
+  if (!baseUrl) {
+    console.error('AI Service URL not configured. Set PRACTICE_AI_URL or AI_SERVICE_URL environment variable.');
+    return sendError(res, 'AI service not configured', 500);
+  }
+  
   try {
-    const baseUrl = process.env.PRACTICE_AI_URL || 'http://localhost:8000';
     const response = await fetch(`${baseUrl}/api/practice/evaluate`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

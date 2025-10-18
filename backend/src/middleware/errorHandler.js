@@ -26,6 +26,14 @@ export const errorHandler = (err, req, res, next) => {
     error = handleSupabaseError(err);
   }
 
+  // CORS errors
+  if (err.message && err.message.includes('Not allowed by CORS')) {
+    error = {
+      message: 'CORS policy violation',
+      statusCode: 403
+    };
+  }
+
   // JWT errors
   if (err.name === 'JsonWebTokenError') {
     error = {

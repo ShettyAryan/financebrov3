@@ -10,11 +10,6 @@ export const corsOptions = {
     // Allow requests with no origin (mobile apps, Postman, etc.)
     if (!origin) return callback(null, true);
     
-    // Allow the configured frontend URL
-    if (origin === config.cors.origin) {
-      return callback(null, true);
-    }
-    
     // In development, allow localhost with any port
     if (config.nodeEnv === 'development') {
       const allowedOrigins = [
@@ -31,18 +26,31 @@ export const corsOptions = {
       }
     }
     
-    // In production, be more restrictive
+    // In production, allow configured frontend URL and Vercel domains
     if (config.nodeEnv === 'production') {
       const allowedProductionOrigins = [
-        config.cors.origin,
+        config.cors.origin, // Your configured FRONTEND_URL
         'https://financebro.app',
         'https://www.financebro.app'
       ];
+      
+      // Also allow any Vercel domain if the configured origin isn't set
+      if (origin && origin.includes('.vercel.app')) {
+        return callback(null, true);
+      }
       
       if (allowedProductionOrigins.includes(origin)) {
         return callback(null, true);
       }
     }
+    
+    // Allow the configured frontend URL regardless of environment
+    if (origin === config.cors.origin) {
+      return callback(null, true);
+    }
+    
+    // Log rejected origins for debugging
+    console.log(`CORS: Rejected origin: ${origin}, configured origin: ${config.cors.origin}, env: ${config.nodeEnv}`);
     
     // Reject other origins
     callback(new Error('Not allowed by CORS'));
@@ -79,9 +87,13 @@ export const corsOptions = {
 export const corsWithLogging = (req, res, next) => {
   const origin = req.get('Origin');
   
-  if (config.nodeEnv === 'development') {
-    console.log(`CORS: ${req.method} ${req.path} from origin: ${origin || 'no-origin'}`);
-  }
+  // Always log CORS requests in production for debugging
+  console.log(`CORS: ${req.method} ${req.path} from origin: ${origin || 'no-origin'}, configured: ${config.cors.origin}`);
   
-  cors(corsOptions)(req, res, next);
+  cors(corsOptions)(req, res, (err) => {
+    if (err) {
+      console.error(`CORS Error: ${err.message} for origin: ${origin}`);
+    }
+    next(err);
+  });
 };

@@ -175,14 +175,16 @@ const startServer = async () => {
       console.log('Missing tables:', missingTables.join(', '));
     }
     
-    // Start server
-    const server = app.listen(config.port, () => {
+    // Start server - bind to 0.0.0.0 for Render compatibility
+    const host = process.env.HOST || '0.0.0.0';
+    const server = app.listen(config.port, host, () => {
       console.log('🚀 FinanceBro Backend Server Started');
       console.log('=====================================');
       console.log(`📍 Environment: ${config.nodeEnv}`);
-      console.log(`🌐 Server: http://localhost:${config.port}`);
-      console.log(`📚 API Docs: http://localhost:${config.port}/api/docs`);
-      console.log(`❤️  Health Check: http://localhost:${config.port}/health`);
+      console.log(`🌐 Server: http://${host}:${config.port}`);
+      console.log(`📚 API Docs: http://${host}:${config.port}/api/docs`);
+      console.log(`❤️  Health Check: http://${host}:${config.port}/health`);
+      console.log(`🔧 CORS Origin: ${config.cors.origin}`);
       console.log('=====================================');
       
       if (isDevelopment()) {
@@ -190,6 +192,16 @@ const startServer = async () => {
         console.log('📝 API endpoints available at /api/*');
         console.log('🤖 AI integration ready at /api/ai/*');
       }
+    });
+
+    // Handle server errors
+    server.on('error', (err) => {
+      if (err.code === 'EADDRINUSE') {
+        console.error(`❌ Port ${config.port} is already in use`);
+      } else {
+        console.error('❌ Server error:', err);
+      }
+      process.exit(1);
     });
     
     // Graceful shutdown
